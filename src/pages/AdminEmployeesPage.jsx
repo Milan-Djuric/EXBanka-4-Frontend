@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import useWindowTitle from '../hooks/useWindowTitle'
 import { useEmployees } from '../context/EmployeesContext'
 
@@ -37,7 +37,12 @@ export default function AdminEmployeesPage() {
 
         {/* Header */}
         <p className="text-xs tracking-widest uppercase text-violet-600 dark:text-violet-400 mb-4">Admin</p>
-        <h1 className="font-serif text-4xl font-light text-slate-900 dark:text-white mb-3">Employees</h1>
+        <div className="flex items-end justify-between mb-3">
+          <h1 className="font-serif text-4xl font-light text-slate-900 dark:text-white">Employees</h1>
+          <Link to="/admin/employees/new" className="btn-primary">
+            New Employee
+          </Link>
+        </div>
         <div className="w-10 h-px bg-violet-500 dark:bg-violet-400 mb-10" />
 
         {/* Filters */}

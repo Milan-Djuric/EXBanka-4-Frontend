@@ -14,8 +14,20 @@ export function EmployeesProvider({ children }) {
     )
   }
 
+  function addEmployee(data) {
+    const nextId = Math.max(...employees.map((e) => e.id)) + 1
+    const newEmp = Object.assign(Object.create(Object.getPrototypeOf(employees[0])), {
+      ...data,
+      id: nextId,
+      password: '',
+      saltPassword: '',
+    })
+    setEmployees((prev) => [...prev, newEmp])
+    return nextId
+  }
+
   return (
-    <EmployeesContext.Provider value={{ employees, updateEmployee }}>
+    <EmployeesContext.Provider value={{ employees, updateEmployee, addEmployee }}>
       {children}
     </EmployeesContext.Provider>
   )

@@ -9,6 +9,7 @@ import LoginPage from './pages/LoginPage'
 import ForgotPasswordPage from './pages/ForgotPasswordPage'
 import AdminEmployeesPage from './pages/AdminEmployeesPage'
 import EmployeeDetailPage from './pages/EmployeeDetailPage'
+import NewEmployeePage from './pages/NewEmployeePage'
 import NotFoundPage from './pages/NotFoundPage'
 
 function App() {
@@ -23,6 +24,7 @@ function App() {
             {/* Protected pages (still use Navbar + Footer layout) */}
             <Route element={<ProtectedRoute />}>
               <Route path="/admin/employees" element={<AdminEmployeesPage />} />
+              <Route path="/admin/employees/new" element={<NewEmployeePage />} />
               <Route path="/admin/employees/:id" element={<EmployeeDetailPage />} />
             </Route>
           </Route>
