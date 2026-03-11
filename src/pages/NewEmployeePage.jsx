@@ -15,7 +15,6 @@ const EMPTY_FORM = {
   username:    '',
   position:    '',
   department:  '',
-  active:      true,
   permissions: { ...DEFAULT_PERMISSIONS },
 }
 
@@ -133,21 +132,6 @@ export default function NewEmployeePage() {
                 </Field>
                 <Field label="Department *" error={errors.department}>
                   <input className={`input-field${errors.department ? ' input-error' : ''}`} name="department" value={form.department} onChange={handleChange} placeholder="e.g. Retail Banking" />
-                </Field>
-                <Field label="Active">
-                  <div className="flex items-center h-[46px] px-4 border border-slate-200 dark:border-slate-700">
-                    <input
-                      type="checkbox"
-                      name="active"
-                      id="active"
-                      checked={form.active}
-                      onChange={handleChange}
-                      className="w-4 h-4 accent-violet-600"
-                    />
-                    <label htmlFor="active" className="ml-2 text-sm text-slate-600 dark:text-slate-300 select-none">
-                      Active account
-                    </label>
-                  </div>
                 </Field>
               </div>
             </FormSection>

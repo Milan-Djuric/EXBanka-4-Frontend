@@ -52,9 +52,26 @@ export default function EmployeeDetailPage() {
     setForm((prev) => ({ ...prev, [name]: type === 'checkbox' ? checked : value }))
   }
 
+  const [adminConfirm, setAdminConfirm] = useState(false)
+  const [pendingAdminValue, setPendingAdminValue] = useState(false)
+
   function handlePermissionChange(e) {
     const { name, checked } = e.target
+    if (name === 'isAdmin' && checked) {
+      setPendingAdminValue(true)
+      setAdminConfirm(true)
+      return
+    }
     setForm((prev) => ({ ...prev, permissions: { ...prev.permissions, [name]: checked } }))
+  }
+
+  function confirmAdmin() {
+    setForm((prev) => ({ ...prev, permissions: { ...prev.permissions, isAdmin: pendingAdminValue } }))
+    setAdminConfirm(false)
+  }
+
+  function cancelAdmin() {
+    setAdminConfirm(false)
   }
 
   async function handleSave() {
@@ -71,6 +88,7 @@ export default function EmployeeDetailPage() {
   }
 
   return (
+    <>
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 px-6 py-16">
       <div className="max-w-2xl mx-auto">
 
@@ -137,7 +155,22 @@ export default function EmployeeDetailPage() {
               </Section>
 
               <Section title="Permissions">
-                {Object.entries(PERMISSIONS).map(([key, label]) => (
+                {/* Admin — visually separated */}
+                <div className="mb-3 rounded-lg border border-amber-300 dark:border-amber-600 bg-amber-50 dark:bg-amber-900/20 px-4 py-3 flex items-center justify-between">
+                  <div>
+                    <span className="text-xs tracking-widest uppercase text-amber-700 dark:text-amber-400 font-semibold">Admin</span>
+                    <p className="text-xs text-amber-600 dark:text-amber-500 mt-0.5">Full system access — grants all privileges</p>
+                  </div>
+                  <input
+                    type="checkbox"
+                    name="isAdmin"
+                    checked={form.permissions?.isAdmin ?? false}
+                    onChange={handlePermissionChange}
+                    className="w-4 h-4 accent-amber-600"
+                  />
+                </div>
+                {/* Other permissions */}
+                {Object.entries(PERMISSIONS).filter(([key]) => key !== 'isAdmin').map(([key, label]) => (
                   <div key={key} className="flex items-center justify-between py-3 border-b border-slate-100 dark:border-slate-800 last:border-0">
                     <span className="text-xs tracking-widest uppercase text-slate-500 dark:text-slate-400">{label}</span>
                     <input
@@ -189,7 +222,22 @@ export default function EmployeeDetailPage() {
               </Section>
 
               <Section title="Permissions">
-                {Object.entries(PERMISSIONS).map(([key, label]) => (
+                {/* Admin row */}
+                <div className="mb-3 rounded-lg border border-amber-300 dark:border-amber-600 bg-amber-50 dark:bg-amber-900/20 px-4 py-3 flex items-center justify-between">
+                  <div>
+                    <span className="text-xs tracking-widest uppercase text-amber-700 dark:text-amber-400 font-semibold">Admin</span>
+                    <p className="text-xs text-amber-600 dark:text-amber-500 mt-0.5">Full system access — grants all privileges</p>
+                  </div>
+                  <span className={`text-xs font-medium tracking-wide px-2 py-0.5 rounded-full ${
+                    emp.permissions?.isAdmin
+                      ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/50 dark:text-amber-400'
+                      : 'bg-slate-100 text-slate-500 dark:bg-slate-700 dark:text-slate-400'
+                  }`}>
+                    {emp.permissions?.isAdmin ? 'Granted' : 'Denied'}
+                  </span>
+                </div>
+                {/* Other permissions */}
+                {Object.entries(PERMISSIONS).filter(([key]) => key !== 'isAdmin').map(([key, label]) => (
                   <div key={key} className="flex items-center justify-between py-3 border-b border-slate-100 dark:border-slate-800 last:border-0">
                     <span className="text-xs tracking-widest uppercase text-slate-500 dark:text-slate-400">{label}</span>
                     <span className={`text-xs font-medium tracking-wide px-2 py-0.5 rounded-full ${
@@ -216,6 +264,35 @@ export default function EmployeeDetailPage() {
         </div>
       </div>
     </div>
+
+    {/* Admin confirmation modal */}
+    {adminConfirm && (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm px-4">
+        <div className="bg-white dark:bg-slate-900 border border-amber-300 dark:border-amber-600 rounded-xl shadow-xl p-8 max-w-sm w-full">
+          <p className="text-xs tracking-widest uppercase text-amber-600 dark:text-amber-400 mb-3">Warning</p>
+          <h2 className="font-serif text-xl font-light text-slate-900 dark:text-white mb-3">Grant Admin access?</h2>
+          <p className="text-sm text-slate-600 dark:text-slate-400 mb-6">
+            Are you sure you want to make <span className="font-semibold text-slate-900 dark:text-white">{emp.fullName}</span> an Admin?
+            This grants full system access and all privileges.
+          </p>
+          <div className="flex gap-3">
+            <button
+              onClick={confirmAdmin}
+              className="px-5 py-2 text-xs tracking-widest uppercase bg-amber-600 hover:bg-amber-700 text-white rounded-lg transition-colors"
+            >
+              Yes, grant Admin
+            </button>
+            <button
+              onClick={cancelAdmin}
+              className="px-5 py-2 text-xs tracking-widest uppercase border border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 hover:border-amber-500 dark:hover:border-amber-400 rounded-lg transition-colors"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      </div>
+    )}
+    </>
   )
 }
 

@@ -33,7 +33,7 @@ function App() {
           {/* Auth pages — full-screen, no layout */}
           <Route path="/login" element={<LoginPage />} />
           <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-          <Route path="/set-password/:token" element={<SetPasswordPage />} />
+          <Route path="/set-password" element={<SetPasswordPage />} />
 
           <Route path="*" element={<NotFoundPage />} />
         </Routes>

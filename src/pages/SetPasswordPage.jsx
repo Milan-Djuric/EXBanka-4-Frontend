@@ -1,7 +1,7 @@
 import { useState } from 'react'
-import { useParams, Link } from 'react-router-dom'
+import { useSearchParams, Link } from 'react-router-dom'
 import useWindowTitle from '../hooks/useWindowTitle'
-import { useEmployees } from '../context/EmployeesContext'
+import { authService } from '../services/authService'
 
 const MIN_LENGTH = 8
 const MAX_LENGTH = 32
@@ -32,24 +32,16 @@ function validate(password, confirm) {
   return errors
 }
 
-/** Decode a setup token of the form "setup-{id}" */
-function decodeToken(token) {
-  const match = token?.match(/^setup-(\d+)$/)
-  return match ? Number(match[1]) : null
-}
-
 export default function SetPasswordPage() {
   useWindowTitle('Create Password | AnkaBanka')
-  const { token } = useParams()
-  const { employees, updateEmployee } = useEmployees()
-
-  const employeeId = decodeToken(token)
-  const employee = employees.find((e) => e.id === employeeId)
+  const [searchParams] = useSearchParams()
+  const token = searchParams.get('token')
 
   const [fields, setFields] = useState({ password: '', confirm: '' })
   const [touched, setTouched] = useState({ password: false, confirm: false })
   const [submitted, setSubmitted] = useState(false)
   const [done, setDone] = useState(false)
+  const [apiError, setApiError] = useState(null)
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirm, setShowConfirm] = useState(false)
 
@@ -60,6 +52,7 @@ export default function SetPasswordPage() {
   }
 
   function handleChange(e) {
+    setApiError(null)
     setFields((prev) => ({ ...prev, [e.target.name]: e.target.value }))
   }
 
@@ -67,16 +60,21 @@ export default function SetPasswordPage() {
     setTouched((prev) => ({ ...prev, [e.target.name]: true }))
   }
 
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault()
     setSubmitted(true)
     if (Object.keys(errors).length > 0) return
-    updateEmployee(employeeId, { password: fields.password })
-    setDone(true)
+    try {
+      await authService.activate(token, fields.password, fields.confirm)
+      setDone(true)
+    } catch (err) {
+      const msg = err?.response?.data?.error
+      setApiError(msg ?? 'Something went wrong. The link may have expired.')
+    }
   }
 
-  /* Invalid / expired token */
-  if (!employee) {
+  /* Missing token */
+  if (!token) {
     return (
       <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col items-center justify-center text-center px-6">
         <p className="text-xs tracking-widest uppercase text-red-500 mb-4">Invalid Link</p>
@@ -103,7 +101,7 @@ export default function SetPasswordPage() {
         <h1 className="font-serif text-4xl font-light text-slate-900 dark:text-white mb-3">Password Created</h1>
         <div className="w-10 h-px bg-violet-500 dark:bg-violet-400 mx-auto mb-6" />
         <p className="text-slate-500 dark:text-slate-400 font-light mb-10">
-          Your account is ready. You can now sign in with your email and new password.
+          Your account is ready. You can now sign in with your username and new password.
         </p>
         <Link to="/login" className="btn-primary">Sign In</Link>
       </div>
@@ -128,8 +126,7 @@ export default function SetPasswordPage() {
           <h1 className="font-serif text-4xl font-light text-slate-900 dark:text-white mb-2">Create Password</h1>
           <div className="w-10 h-px bg-violet-500 dark:bg-violet-400 mx-auto mb-4" />
           <p className="text-slate-500 dark:text-slate-400 font-light text-sm">
-            Welcome, <span className="text-slate-900 dark:text-white font-medium">{employee.fullName}</span>.
-            Set a password for <span className="text-slate-900 dark:text-white font-medium">{employee.email}</span>.
+            Set a password to activate your account.
           </p>
         </div>
 
@@ -193,6 +190,10 @@ export default function SetPasswordPage() {
               </div>
               {visibleErrors.confirm && <p className="mt-2 text-xs text-red-500">{visibleErrors.confirm}</p>}
             </div>
+
+            {apiError && (
+              <p className="text-xs text-red-500">{apiError}</p>
+            )}
 
             <button type="submit" className="btn-primary w-full">
               Create Password

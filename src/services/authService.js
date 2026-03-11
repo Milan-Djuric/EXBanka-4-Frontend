@@ -2,13 +2,12 @@
  * Auth Service
  *
  * Wraps all authentication API calls against the API Gateway.
- * After login / session restore, fetches the full employee record so the
- * user payload contains firstName, lastName, email, etc.
+ * User identity is read directly from JWT claims — no extra API call needed.
  */
 
 import { apiClient, refreshClient } from './apiClient'
 import { tokenService } from './tokenService'
-import { employeeFromApi } from '../models/Employee'
+import { permissionsFromDozvole } from '../models/Employee'
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -21,17 +20,18 @@ function decodeJwtPayload(token) {
   return JSON.parse(atob(base64))
 }
 
-function buildUserPayload(employee, dozvole = []) {
+function buildUserPayload(claims) {
+  const dozvole = claims.dozvole ?? []
   const roles = dozvole.map((d) => d.toUpperCase()).includes('ADMIN')
     ? ['ADMIN']
     : ['USER']
   return {
-    id:          employee.id,
-    firstName:   employee.firstName,
-    lastName:    employee.lastName,
-    email:       employee.email,
+    id:          claims.user_id,
+    firstName:   claims.first_name ?? '',
+    lastName:    claims.last_name  ?? '',
+    email:       claims.email      ?? '',
     roles,
-    permissions: employee.permissions,
+    permissions: permissionsFromDozvole(dozvole),
   }
 }
 
@@ -41,18 +41,13 @@ export const authService = {
   /**
    * Log in with username + password.
    * POST /login → { access_token, refresh_token }
-   * Then fetches GET /employees/{id} for the full user profile.
+   * User info is read directly from the JWT claims.
    */
   async login(username, password) {
     const { data } = await apiClient.post('/login', { username, password })
     tokenService.setAccessToken(data.access_token)
     tokenService.setRefreshToken(data.refresh_token)
-
-    const claims = decodeJwtPayload(data.access_token)
-    const employee = employeeFromApi(
-      (await apiClient.get(`/employees/${claims.user_id}`)).data
-    )
-    return buildUserPayload(employee, claims.dozvole ?? [])
+    return buildUserPayload(decodeJwtPayload(data.access_token))
   },
 
   /**
@@ -66,6 +61,18 @@ export const authService = {
     const { data } = await refreshClient.post('/refresh', { refresh_token: refreshToken })
     tokenService.setAccessToken(data.access_token)
     return data.access_token
+  },
+
+  /**
+   * Activate a new employee account using the token from the email link.
+   * POST /auth/activate → { message }
+   */
+  async activate(token, password, confirmPassword) {
+    await apiClient.post('/auth/activate', {
+      token,
+      password,
+      confirm_password: confirmPassword,
+    })
   },
 
   /**
@@ -86,11 +93,7 @@ export const authService = {
     if (!refreshToken) return null
     try {
       const accessToken = await authService.refresh()
-      const claims = decodeJwtPayload(accessToken)
-      const employee = employeeFromApi(
-        (await apiClient.get(`/employees/${claims.user_id}`)).data
-      )
-      return buildUserPayload(employee, claims.dozvole ?? [])
+      return buildUserPayload(decodeJwtPayload(accessToken))
     } catch {
       tokenService.clear()
       return null

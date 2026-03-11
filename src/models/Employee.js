@@ -3,6 +3,7 @@
  * Each key maps to a human-readable label.
  */
 export const PERMISSIONS = {
+  isAdmin:               'Admin',
   canViewClients:        'View Clients',
   canCreateAccounts:     'Create Accounts',
   canApproveLoans:       'Approve Loans',
@@ -12,6 +13,7 @@ export const PERMISSIONS = {
 }
 
 export const DEFAULT_PERMISSIONS = {
+  isAdmin:                false,
   canViewClients:         false,
   canCreateAccounts:      false,
   canApproveLoans:        false,
@@ -70,6 +72,7 @@ export class Employee {
 
 // Maps frontend permission keys to their backend dozvole string equivalents.
 const DOZVOLE_MAP = {
+  isAdmin:                'ADMIN',
   canViewClients:         'READ',
   canCreateAccounts:      'WRITE',
   canApproveLoans:        'LOANS',

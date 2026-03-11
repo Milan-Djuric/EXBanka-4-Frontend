@@ -39,7 +39,7 @@ function Navbar() {
           {/* Desktop links */}
           <div className="hidden md:flex items-center gap-8">
             <NavLink to="/" className={linkClass} end>Home</NavLink>
-            {user && (
+            {user?.roles?.includes('ADMIN') && (
               <NavLink to="/admin/employees" className={linkClass}>Employees</NavLink>
             )}
           </div>
@@ -98,7 +98,7 @@ function Navbar() {
         {menuOpen && (
           <div className="md:hidden border-t border-slate-100 dark:border-slate-800 py-4 flex flex-col gap-4">
             <NavLink to="/" className={linkClass} end onClick={() => setMenuOpen(false)}>Home</NavLink>
-            {user && (
+            {user?.roles?.includes('ADMIN') && (
               <NavLink to="/admin/employees" className={linkClass} onClick={() => setMenuOpen(false)}>Employees</NavLink>
             )}
             <div className="flex items-center gap-4">
