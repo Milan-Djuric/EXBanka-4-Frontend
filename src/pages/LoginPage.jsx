@@ -5,8 +5,8 @@ import { useAuth } from '../context/AuthContext'
 
 function validate(fields) {
   const errors = {}
-  if (!fields.username) {
-    errors.username = 'Username is required.'
+  if (!fields.email) {
+    errors.email = 'Email is required.'
   }
   if (!fields.password) {
     errors.password = 'Password is required.'
@@ -19,15 +19,15 @@ function LoginPage() {
   const { login } = useAuth()
   const navigate = useNavigate()
 
-  const [fields, setFields] = useState({ username: '', password: '' })
-  const [touched, setTouched] = useState({ username: false, password: false })
+  const [fields, setFields] = useState({ email: '', password: '' })
+  const [touched, setTouched] = useState({ email: false, password: false })
   const [submitted, setSubmitted] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
   const [authError, setAuthError] = useState(null)
 
   const errors = validate(fields)
   const visibleErrors = {
-    username: (touched.username || submitted) ? errors.username : undefined,
+    email: (touched.email || submitted) ? errors.email : undefined,
     password: (touched.password || submitted) ? errors.password : undefined,
   }
 
@@ -44,10 +44,10 @@ function LoginPage() {
     setSubmitted(true)
     if (Object.keys(errors).length > 0) return
     try {
-      await login(fields.username, fields.password)
+      await login(fields.email, fields.password)
       navigate('/')
     } catch {
-      setAuthError('Invalid username or password.')
+      setAuthError('Invalid email or password.')
     }
   }
 
@@ -70,27 +70,27 @@ function LoginPage() {
 
         <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-8 shadow-sm">
           <form onSubmit={handleSubmit} noValidate className="space-y-6">
-            {/* Username */}
+            {/* Email */}
             <div>
               <label
-                htmlFor="username"
+                htmlFor="email"
                 className="block text-xs tracking-widest uppercase text-slate-600 dark:text-slate-400 mb-2"
               >
-                Username
+                Email
               </label>
               <input
-                id="username"
-                name="username"
-                type="text"
-                autoComplete="username"
-                value={fields.username}
+                id="email"
+                name="email"
+                type="email"
+                autoComplete="email"
+                value={fields.email}
                 onChange={handleChange}
                 onBlur={handleBlur}
-                placeholder="your.username"
-                className={`input-field ${visibleErrors.username ? 'input-error' : ''}`}
+                placeholder="your@email.com"
+                className={`input-field ${visibleErrors.email ? 'input-error' : ''}`}
               />
-              {visibleErrors.username && (
-                <p className="mt-2 text-xs text-red-500">{visibleErrors.username}</p>
+              {visibleErrors.email && (
+                <p className="mt-2 text-xs text-red-500">{visibleErrors.email}</p>
               )}
             </div>
 

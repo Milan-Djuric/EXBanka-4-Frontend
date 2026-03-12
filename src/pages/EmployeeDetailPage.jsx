@@ -128,7 +128,7 @@ export default function EmployeeDetailPage() {
                 <EditRow label="First Name"    name="firstName"   value={form.firstName}   onChange={handleChange} />
                 <EditRow label="Last Name"     name="lastName"    value={form.lastName}    onChange={handleChange} />
                 <EditRow label="Date of Birth" name="dateOfBirth" value={form.dateOfBirth} onChange={handleChange} type="date" />
-                <EditRow label="Gender"        name="gender"      value={form.gender}      onChange={handleChange} />
+                <SelectRow label="Gender" name="gender" value={form.gender} onChange={handleChange} options={['Male', 'Female', 'Other']} />
               </Section>
 
               <Section title="Contact">
@@ -325,6 +325,24 @@ function EditRow({ label, name, value, onChange, type = 'text' }) {
         onChange={onChange}
         className="text-sm text-right bg-transparent border-b border-violet-300 dark:border-violet-600 text-slate-900 dark:text-white focus:outline-none focus:border-violet-500 w-full max-w-xs"
       />
+    </div>
+  )
+}
+
+function SelectRow({ label, name, value, onChange, options }) {
+  return (
+    <div className="flex items-center justify-between py-2 border-b border-slate-100 dark:border-slate-800 last:border-0 gap-4">
+      <span className="text-xs tracking-widest uppercase text-slate-500 dark:text-slate-400 shrink-0">{label}</span>
+      <select
+        name={name}
+        value={value}
+        onChange={onChange}
+        className="text-sm text-right bg-transparent border-b border-violet-300 dark:border-violet-600 text-slate-900 dark:text-white focus:outline-none focus:border-violet-500 w-full max-w-xs"
+      >
+        {options.map((opt) => (
+          <option key={opt} value={opt}>{opt}</option>
+        ))}
+      </select>
     </div>
   )
 }

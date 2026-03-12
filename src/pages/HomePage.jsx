@@ -87,6 +87,7 @@ function HomePage() {
   const { dark } = useTheme()
   const { user } = useAuth()
   const [offset, setOffset] = useState({ x: 0, y: 0 })
+  const [blobsShifted, setBlobsShifted] = useState(false)
 
   useEffect(() => {
     const handleMouse = (e) => {
@@ -100,6 +101,15 @@ function HomePage() {
     return () => window.removeEventListener('mousemove', handleMouse)
   }, [])
 
+  useEffect(() => {
+    if (!user) {
+      setBlobsShifted(false)
+      return
+    }
+    const t = setTimeout(() => setBlobsShifted(true), 60)
+    return () => clearTimeout(t)
+  }, [user])
+
   const grantedPermissions = user
     ? Object.entries(user.permissions).filter(([, granted]) => granted)
     : []
@@ -109,21 +119,25 @@ function HomePage() {
       {/* Blob container */}
       <div aria-hidden="true" className="pointer-events-none absolute inset-0">
         <div
-          className="absolute top-0 left-[38%] w-[538px] h-[650px]"
+          className="absolute w-[538px] h-[650px]"
           style={{
+            top:    blobsShifted ? '-10%'  : '0',
+            left:   blobsShifted ? '10%'  : '38%',
             transform: `translate(${offset.x}px, ${offset.y}px) rotate(18deg)`,
-            transition: 'transform 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+            transition: 'top 0.9s cubic-bezier(0.25, 0.46, 0.45, 0.94), left 0.9s cubic-bezier(0.25, 0.46, 0.45, 0.94), transform 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
             background: dark
-              ? 'radial-gradient(ellipse at 50% 50%, rgba(99, 32, 255, 0.98) 0%, transparent 70%)'
+              ? 'radial-gradient(ellipse at 50% 50%, rgba(126, 71, 255, 0.75) 0%, transparent 70%)'
               : 'radial-gradient(ellipse at 50% 50%, rgba(138, 92, 246, 0.87) 0%, transparent 70%)',
             filter: 'blur(64px)',
           }}
         />
         <div
-          className="absolute top-12 left-[30%] w-[700px] h-[375px]"
+          className="absolute w-[700px] h-[375px]"
           style={{
+            top:    blobsShifted ? '55%' : '48px',
+            left:   blobsShifted ? '58%' : '30%',
             transform: `translate(${offset.x * 0.55}px, ${offset.y * 0.55}px) rotate(-12deg)`,
-            transition: 'transform 1.1s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+            transition: 'top 1.1s cubic-bezier(0.25, 0.46, 0.45, 0.94), left 1.1s cubic-bezier(0.25, 0.46, 0.45, 0.94), transform 1.1s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
             background: dark
               ? 'radial-gradient(ellipse at 50% 50%, rgba(31, 132, 255, 0.9) 0%, transparent 70%)'
               : 'radial-gradient(ellipse at 50% 50%, rgba(96, 165, 250, 0.88) 0%, transparent 70%)',

@@ -39,12 +39,12 @@ function buildUserPayload(claims) {
 
 export const authService = {
   /**
-   * Log in with username + password.
+   * Log in with email + password.
    * POST /login → { access_token, refresh_token }
    * User info is read directly from the JWT claims.
    */
-  async login(username, password) {
-    const { data } = await apiClient.post('/login', { username, password })
+  async login(email, password) {
+    const { data } = await apiClient.post('/login', { email, password })
     tokenService.setAccessToken(data.access_token)
     tokenService.setRefreshToken(data.refresh_token)
     return buildUserPayload(decodeJwtPayload(data.access_token))
