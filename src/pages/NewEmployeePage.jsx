@@ -9,6 +9,7 @@ const EMPTY_FORM = {
   lastName:    '',
   dateOfBirth: '',
   gender:      '',
+  jmbg:        '',
   email:       '',
   phoneNumber: '',
   address:     '',
@@ -39,6 +40,7 @@ export default function NewEmployeePage() {
     REQUIRED.forEach((field) => {
       if (!form[field].trim()) next[field] = true
     })
+    if (!/^\d{13}$/.test(form.jmbg)) next.jmbg = true
     return next
   }
 
@@ -102,6 +104,9 @@ export default function NewEmployeePage() {
                     <option value="F">Female</option>
                     <option value="Other">Other</option>
                   </select>
+                </Field>
+                <Field label="JMBG *" error={errors.jmbg} errorMsg="Must be exactly 13 digits.">
+                  <input className={`input-field${errors.jmbg ? ' input-error' : ''}`} name="jmbg" value={form.jmbg} onChange={handleChange} placeholder="13-digit personal ID" maxLength={13} />
                 </Field>
               </div>
             </FormSection>
@@ -167,12 +172,12 @@ function FormSection({ title, children }) {
   )
 }
 
-function Field({ label, error, children }) {
+function Field({ label, error, errorMsg = 'This field is required.', children }) {
   return (
     <div>
       <label className="block text-xs tracking-widest uppercase text-slate-500 dark:text-slate-400 mb-1">{label}</label>
       {children}
-      {error && <p className="mt-1 text-xs text-red-500">This field is required.</p>}
+      {error && <p className="mt-1 text-xs text-red-500">{errorMsg}</p>}
     </div>
   )
 }

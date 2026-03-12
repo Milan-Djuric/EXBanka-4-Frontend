@@ -35,6 +35,7 @@ export default function EmployeeDetailPage() {
       lastName:    emp.lastName,
       dateOfBirth: emp.dateOfBirth,
       gender:      emp.gender,
+      jmbg:        emp.jmbg,
       email:       emp.email,
       phoneNumber: emp.phoneNumber,
       address:     emp.address,
@@ -42,7 +43,7 @@ export default function EmployeeDetailPage() {
       position:    emp.position,
       department:  emp.department,
       active:      emp.active,
-    permissions: { ...emp.permissions },
+      permissions: { ...emp.permissions },
     })
     setEditing(true)
   }
@@ -52,6 +53,7 @@ export default function EmployeeDetailPage() {
     setForm((prev) => ({ ...prev, [name]: type === 'checkbox' ? checked : value }))
   }
 
+  const [jmbgError, setJmbgError] = useState('')
   const [adminConfirm, setAdminConfirm] = useState(false)
   const [pendingAdminValue, setPendingAdminValue] = useState(false)
 
@@ -75,6 +77,11 @@ export default function EmployeeDetailPage() {
   }
 
   async function handleSave() {
+    if (!/^\d{13}$/.test(form.jmbg)) {
+      setJmbgError('Must be exactly 13 digits.')
+      return
+    }
+    setJmbgError('')
     try {
       await updateEmployee(emp.id, form)
       setEditing(false)
@@ -129,6 +136,7 @@ export default function EmployeeDetailPage() {
                 <EditRow label="Last Name"     name="lastName"    value={form.lastName}    onChange={handleChange} />
                 <EditRow label="Date of Birth" name="dateOfBirth" value={form.dateOfBirth} onChange={handleChange} type="date" />
                 <SelectRow label="Gender" name="gender" value={form.gender} onChange={handleChange} options={['Male', 'Female', 'Other']} />
+                <EditRow label="JMBG" name="jmbg" value={form.jmbg} onChange={handleChange} maxLength={13} error={jmbgError} />
               </Section>
 
               <Section title="Contact">
@@ -206,6 +214,7 @@ export default function EmployeeDetailPage() {
                 <Row label="Last Name"     value={emp.lastName} />
                 <Row label="Date of Birth" value={emp.dateOfBirth} />
                 <Row label="Gender"        value={emp.gender} />
+                <Row label="JMBG"          value={emp.jmbg} />
               </Section>
 
               <Section title="Contact">
@@ -314,17 +323,21 @@ function Row({ label, value }) {
   )
 }
 
-function EditRow({ label, name, value, onChange, type = 'text' }) {
+function EditRow({ label, name, value, onChange, type = 'text', maxLength, error }) {
   return (
-    <div className="flex items-center justify-between py-2 border-b border-slate-100 dark:border-slate-800 last:border-0 gap-4">
-      <span className="text-xs tracking-widest uppercase text-slate-500 dark:text-slate-400 shrink-0">{label}</span>
-      <input
-        type={type}
-        name={name}
-        value={value}
-        onChange={onChange}
-        className="text-sm text-right bg-transparent border-b border-violet-300 dark:border-violet-600 text-slate-900 dark:text-white focus:outline-none focus:border-violet-500 w-full max-w-xs"
-      />
+    <div className="py-2 border-b border-slate-100 dark:border-slate-800 last:border-0">
+      <div className="flex items-center justify-between gap-4">
+        <span className="text-xs tracking-widest uppercase text-slate-500 dark:text-slate-400 shrink-0">{label}</span>
+        <input
+          type={type}
+          name={name}
+          value={value}
+          onChange={onChange}
+          maxLength={maxLength}
+          className="text-sm text-right bg-transparent border-b border-violet-300 dark:border-violet-600 text-slate-900 dark:text-white focus:outline-none focus:border-violet-500 w-full max-w-xs"
+        />
+      </div>
+      {error && <p className="mt-1 text-xs text-red-500 text-right">{error}</p>}
     </div>
   )
 }

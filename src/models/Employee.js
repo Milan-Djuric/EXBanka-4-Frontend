@@ -46,6 +46,7 @@ export class Employee {
     department,   // string  — rarely changes (e.g. 'Finance')
     active,       // boolean — rarely changes
     permissions,  // object  — system access permissions
+    jmbg,         // string  — 13-digit personal ID
   }) {
     this.id           = id
     this.firstName    = firstName
@@ -62,6 +63,7 @@ export class Employee {
     this.department   = department
     this.active       = active
     this.permissions  = { ...DEFAULT_PERMISSIONS, ...permissions }
+    this.jmbg         = jmbg ?? ''
   }
 
   /** Full display name */
@@ -121,5 +123,6 @@ export function employeeFromApi(data) {
     department:   data.departman,
     active:       data.aktivan,
     permissions:  permissionsFromDozvole(data.dozvole),
+    jmbg:         data.jmbg,
   })
 }

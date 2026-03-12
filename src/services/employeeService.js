@@ -44,6 +44,7 @@ export const employeeService = {
       username:      form.username,
       position:      form.position,
       department:    form.department,
+      jmbg:          form.jmbg,
     }
     const { data } = await apiClient.post('/employees', body)
     return data   // employeeResponse (Serbian fields)
@@ -83,6 +84,7 @@ export const employeeService = {
       department:    form.department,
       active:        form.active,
       permissions:   dozvoleFromPermissions(form.permissions),
+      jmbg:          form.jmbg,
     }
     const { data } = await apiClient.put(`/employees/${id}`, body)
     return data   // employeeResponse (Serbian fields)
