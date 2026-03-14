@@ -66,7 +66,7 @@ export default function AccountDetailPage() {
             }
           />
           <Row
-            label="Currency"
+            label="Currency Type"
             value={
               <span className={`inline-flex items-center px-2.5 py-0.5 text-xs font-medium tracking-wide rounded-full ${
                 account.currencyType === 'current'
@@ -77,6 +77,7 @@ export default function AccountDetailPage() {
               </span>
             }
           />
+          {account.currency && <Row label="Currency" value={account.currency} />}
         </div>
 
         {/* Cards section — placeholder until issue #41 */}

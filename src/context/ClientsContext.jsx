@@ -21,13 +21,19 @@ export function ClientsProvider({ children }) {
     }
   }
 
+  async function addClient(data) {
+    const created = await clientService.createClient(data)
+    setClients((prev) => [...prev, created])
+    return created
+  }
+
   async function updateClient(id, fields) {
     const updated = await clientService.updateClient(id, fields)
     setClients((prev) => prev.map((c) => (c.id === id ? updated : c)))
   }
 
   return (
-    <ClientsContext.Provider value={{ clients, loading, error, reload, updateClient }}>
+    <ClientsContext.Provider value={{ clients, loading, error, reload, addClient, updateClient }}>
       {children}
     </ClientsContext.Provider>
   )

@@ -21,8 +21,14 @@ export function AccountsProvider({ children }) {
     }
   }
 
+  async function addAccount(data) {
+    const created = await accountService.createAccount(data)
+    setAccounts((prev) => [...prev, created])
+    return created
+  }
+
   return (
-    <AccountsContext.Provider value={{ accounts, loading, error, reload }}>
+    <AccountsContext.Provider value={{ accounts, loading, error, reload, addAccount }}>
       {children}
     </AccountsContext.Provider>
   )

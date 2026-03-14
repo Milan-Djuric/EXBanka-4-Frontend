@@ -14,8 +14,10 @@ import EmployeeDetailPage from './pages/EmployeeDetailPage'
 import NewEmployeePage from './pages/NewEmployeePage'
 import ClientsPage from './pages/ClientsPage'
 import ClientDetailPage from './pages/ClientDetailPage'
+import NewClientPage from './pages/NewClientPage'
 import ClientAccountsPage from './pages/ClientAccountsPage'
 import AccountDetailPage from './pages/AccountDetailPage'
+import NewAccountPage from './pages/NewAccountPage'
 import SetPasswordPage from './pages/SetPasswordPage'
 import ResetPasswordPage from './pages/ResetPasswordPage'
 import NotFoundPage from './pages/NotFoundPage'
@@ -37,8 +39,10 @@ function App() {
               <Route path="/admin/employees/new" element={<NewEmployeePage />} />
               <Route path="/admin/employees/:id" element={<EmployeeDetailPage />} />
               <Route path="/admin/clients" element={<ClientsPage />} />
+              <Route path="/admin/clients/new" element={<NewClientPage />} />
               <Route path="/admin/clients/:id" element={<ClientDetailPage />} />
               <Route path="/admin/accounts" element={<ClientAccountsPage />} />
+              <Route path="/admin/accounts/new" element={<NewAccountPage />} />
               <Route path="/admin/accounts/:id" element={<AccountDetailPage />} />
             </Route>
           </Route>
