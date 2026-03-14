@@ -3,6 +3,7 @@ import { ThemeProvider } from './context/ThemeContext'
 import { AuthProvider } from './context/AuthContext'
 import { EmployeesProvider } from './context/EmployeesContext'
 import { ClientsProvider } from './context/ClientsContext'
+import { AccountsProvider } from './context/AccountsContext'
 import MainLayout from './layouts/MainLayout'
 import ProtectedRoute from './components/ProtectedRoute'
 import HomePage from './pages/HomePage'
@@ -13,6 +14,7 @@ import EmployeeDetailPage from './pages/EmployeeDetailPage'
 import NewEmployeePage from './pages/NewEmployeePage'
 import ClientsPage from './pages/ClientsPage'
 import ClientDetailPage from './pages/ClientDetailPage'
+import ClientAccountsPage from './pages/ClientAccountsPage'
 import SetPasswordPage from './pages/SetPasswordPage'
 import ResetPasswordPage from './pages/ResetPasswordPage'
 import NotFoundPage from './pages/NotFoundPage'
@@ -23,6 +25,7 @@ function App() {
       <AuthProvider>
       <EmployeesProvider>
       <ClientsProvider>
+      <AccountsProvider>
         <Routes>
           {/* Public pages with Navbar + Footer */}
           <Route element={<MainLayout />}>
@@ -34,6 +37,7 @@ function App() {
               <Route path="/admin/employees/:id" element={<EmployeeDetailPage />} />
               <Route path="/admin/clients" element={<ClientsPage />} />
               <Route path="/admin/clients/:id" element={<ClientDetailPage />} />
+              <Route path="/admin/accounts" element={<ClientAccountsPage />} />
             </Route>
           </Route>
 
@@ -45,6 +49,7 @@ function App() {
 
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
+      </AccountsProvider>
       </ClientsProvider>
       </EmployeesProvider>
       </AuthProvider>
