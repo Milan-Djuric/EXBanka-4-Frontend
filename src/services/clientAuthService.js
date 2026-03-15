@@ -20,10 +20,15 @@ export const clientAuthService = {
       throw new Error('Invalid email or password.')
     }
     return {
-      id:        client.id,
-      firstName: client.firstName,
-      lastName:  client.lastName,
-      email:     client.email,
+      id:          client.id,
+      firstName:   client.firstName,
+      lastName:    client.lastName,
+      email:       client.email,
+      phoneNumber: client.phoneNumber,
+      address:     client.address,
+      username:    client.username,
+      dateOfBirth: client.dateOfBirth,
+      gender:      client.gender,
     }
   },
 

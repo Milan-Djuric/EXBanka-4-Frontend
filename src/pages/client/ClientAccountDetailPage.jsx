@@ -3,59 +3,8 @@ import { useParams, useNavigate } from 'react-router-dom'
 import useWindowTitle from '../../hooks/useWindowTitle'
 import ClientPortalLayout from '../../layouts/ClientPortalLayout'
 import { useClientAuth } from '../../context/ClientAuthContext'
-
-// Mock data — replace with GET /api/accounts/{accountId}
-const MOCK_CLIENT_ACCOUNTS = [
-  {
-    id: 1,
-    accountNumber: '265-0000000123456-78',
-    accountName: 'Standard Current',
-    currency: 'RSD',
-    balance: 123_456.00,
-    availableBalance: 121_234.00,
-    type: 'personal',
-    subtype: 'standard',
-    status: 'active',
-    dailyLimit: 250_000.00,
-    monthlyLimit: 1_000_000.00,
-    dailySpending: 2_222.00,
-    monthlySpending: 18_450.00,
-  },
-  {
-    id: 2,
-    accountNumber: '265-0000000234567-89',
-    accountName: 'Savings',
-    currency: 'RSD',
-    balance: 45_000.00,
-    availableBalance: 45_000.00,
-    type: 'personal',
-    subtype: 'savings',
-    status: 'active',
-    dailyLimit: 100_000.00,
-    monthlyLimit: 500_000.00,
-    dailySpending: 0,
-    monthlySpending: 0,
-  },
-  {
-    id: 3,
-    accountNumber: '265-0000000345678-90',
-    accountName: 'Foreign Currency',
-    currency: 'EUR',
-    balance: 850.00,
-    availableBalance: 850.00,
-    type: 'personal',
-    subtype: 'standard',
-    status: 'active',
-    dailyLimit: 5_000.00,
-    monthlyLimit: 20_000.00,
-    dailySpending: 0,
-    monthlySpending: 120.00,
-  },
-]
-
-function fmt(n, currency) {
-  return n.toLocaleString('sr-RS', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + (currency ? ` ${currency}` : '')
-}
+import { useClientAccounts } from '../../context/ClientAccountsContext'
+import { fmt } from '../../utils/formatting'
 
 function Row({ label, value, highlight }) {
   return (
@@ -81,8 +30,9 @@ export default function ClientAccountDetailPage() {
   const { id } = useParams()
   const navigate = useNavigate()
   const { clientUser } = useClientAuth()
+  const { accounts } = useClientAccounts()
 
-  const account = MOCK_CLIENT_ACCOUNTS.find((a) => a.id === Number(id))
+  const account = accounts.find((a) => a.id === Number(id))
 
   const [accountName, setAccountName] = useState(account?.accountName ?? '')
   const [editingName, setEditingName] = useState(false)

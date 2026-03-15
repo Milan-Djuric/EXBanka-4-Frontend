@@ -2,14 +2,11 @@ import { useState, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import useWindowTitle from '../../hooks/useWindowTitle'
 import ClientPortalLayout from '../../layouts/ClientPortalLayout'
-import { MOCK_PAYMENTS } from '../../mocks/payments'
+import { useClientPayments } from '../../context/ClientPaymentsContext'
 import { PAYMENT_STATUSES, PAYMENT_STATUS_STYLES } from '../../models/Payment'
+import { fmt } from '../../utils/formatting'
 
 const STATUS_OPTIONS = ['all', ...PAYMENT_STATUSES]
-
-function fmt(n) {
-  return n.toLocaleString('sr-RS', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
-}
 
 function StatusBadge({ status }) {
   return (
@@ -22,6 +19,7 @@ function StatusBadge({ status }) {
 export default function ClientPaymentsPage() {
   useWindowTitle('Payments | AnkaBanka')
   const navigate = useNavigate()
+  const { payments } = useClientPayments()
 
   const [filterDate,      setFilterDate]      = useState('')
   const [filterAmountMin, setFilterAmountMin] = useState('')
@@ -29,7 +27,7 @@ export default function ClientPaymentsPage() {
   const [filterStatus,    setFilterStatus]    = useState('all')
 
   const filtered = useMemo(() => {
-    return MOCK_PAYMENTS.filter((p) => {
+    return payments.filter((p) => {
       if (filterDate && !p.dateTime.startsWith(filterDate)) return false
       if (filterStatus !== 'all' && p.status !== filterStatus) return false
       const abs = Math.abs(p.amount)
@@ -168,7 +166,7 @@ export default function ClientPaymentsPage() {
         </div>
 
         <p className="text-xs text-slate-400 dark:text-slate-500 mt-3 text-right">
-          {filtered.length} of {MOCK_PAYMENTS.length} payments
+          {filtered.length} of {payments.length} payments
         </p>
       </div>
     </ClientPortalLayout>

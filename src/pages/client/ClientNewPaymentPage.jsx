@@ -2,13 +2,8 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import useWindowTitle from '../../hooks/useWindowTitle'
 import ClientPortalLayout from '../../layouts/ClientPortalLayout'
-
-// Mock data — replace with GET /api/accounts/my when backend is ready
-const MOCK_ACCOUNTS = [
-  { id: 1, accountNumber: '265-0000000123456-78', accountName: 'Standard Current', currency: 'RSD', availableBalance: 121_234.00 },
-  { id: 2, accountNumber: '265-0000000234567-89', accountName: 'Savings',          currency: 'RSD', availableBalance:  45_000.00 },
-  { id: 3, accountNumber: '265-0000000345678-90', accountName: 'Foreign Currency', currency: 'EUR', availableBalance:     850.00 },
-]
+import { useClientAccounts } from '../../context/ClientAccountsContext'
+import { fmt } from '../../utils/formatting'
 
 const EMPTY_FORM = {
   fromAccountId:    '',
@@ -18,10 +13,6 @@ const EMPTY_FORM = {
   paymentCode:      '',
   referenceNumber:  '',
   purpose:          '',
-}
-
-function fmt(n, currency) {
-  return n.toLocaleString('sr-RS', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ` ${currency}`
 }
 
 function Field({ label, error, children }) {
@@ -37,11 +28,12 @@ function Field({ label, error, children }) {
 export default function ClientNewPaymentPage() {
   useWindowTitle('New Payment | AnkaBanka')
   const navigate = useNavigate()
+  const { accounts } = useClientAccounts()
 
   const [form, setForm]     = useState(EMPTY_FORM)
   const [errors, setErrors] = useState({})
 
-  const selectedAccount = MOCK_ACCOUNTS.find((a) => a.id === Number(form.fromAccountId))
+  const selectedAccount = accounts.find((a) => a.id === Number(form.fromAccountId))
 
   function handleChange(e) {
     const { name, value } = e.target
@@ -101,7 +93,7 @@ export default function ClientNewPaymentPage() {
                   className={`input-field appearance-none pr-10 ${errors.fromAccountId ? 'input-error' : ''}`}
                 >
                   <option value="">Select account…</option>
-                  {MOCK_ACCOUNTS.map((a) => (
+                  {accounts.map((a) => (
                     <option key={a.id} value={a.id}>
                       {a.accountName} — {a.accountNumber}
                     </option>

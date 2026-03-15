@@ -17,6 +17,10 @@ export const accountService = {
     return [..._accounts]
   },
 
+  async getAccountById(id) {
+    return _accounts.find((a) => a.id === id) ?? null
+  },
+
   async createAccount({ ownerId, ownerFirstName, ownerLastName, type, currencyType, currency, createdByEmployeeId }) {
     const account = new BankAccount({
       id: _nextId,
