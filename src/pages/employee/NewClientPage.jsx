@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
-import useWindowTitle from '../hooks/useWindowTitle'
-import { useClients } from '../context/ClientsContext'
+import useWindowTitle from '../../hooks/useWindowTitle'
+import { useClients } from '../../context/ClientsContext'
 
 const EMPTY_FORM = {
   firstName:   '',

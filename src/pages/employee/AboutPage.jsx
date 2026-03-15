@@ -1,4 +1,4 @@
-import useWindowTitle from '../hooks/useWindowTitle'
+import useWindowTitle from '../../hooks/useWindowTitle'
 
 function AboutPage() {
   useWindowTitle('About | AnkaBanka Employee Portal')

@@ -1,8 +1,8 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import useWindowTitle from '../hooks/useWindowTitle'
-import { useEmployees } from '../context/EmployeesContext'
-import { DEFAULT_PERMISSIONS } from '../models/Employee'
+import useWindowTitle from '../../hooks/useWindowTitle'
+import { useEmployees } from '../../context/EmployeesContext'
+import { DEFAULT_PERMISSIONS } from '../../models/Employee'
 
 const EMPTY_FORM = {
   firstName:   '',

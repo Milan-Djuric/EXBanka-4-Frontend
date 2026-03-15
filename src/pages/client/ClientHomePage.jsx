@@ -1,45 +1,12 @@
 import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import useWindowTitle from '../hooks/useWindowTitle'
-import { useTheme } from '../context/ThemeContext'
-import { useClientAuth } from '../context/ClientAuthContext'
-
-// ─── Mock data (swap for real API calls later) ────────────────────────────────
-
-const MOCK_CLIENT_ACCOUNTS = [
-  {
-    id: 1,
-    accountNumber: '265-0000000123456-78',
-    accountName: 'Standard Current',
-    currency: 'RSD',
-    balance: 123_456.00,
-    availableBalance: 121_234.00,
-  },
-  {
-    id: 2,
-    accountNumber: '265-0000000234567-89',
-    accountName: 'Savings',
-    currency: 'RSD',
-    balance: 45_000.00,
-    availableBalance: 45_000.00,
-  },
-  {
-    id: 3,
-    accountNumber: '265-0000000345678-90',
-    accountName: 'Foreign Currency',
-    currency: 'EUR',
-    balance: 850.00,
-    availableBalance: 850.00,
-  },
-]
-
-const MOCK_TRANSACTIONS = [
-  { id: 1, description: 'Coffee Shop',      amount: -350,   date: '2026-03-14' },
-  { id: 2, description: 'Salary',           amount:  85000, date: '2026-03-13' },
-  { id: 3, description: 'Electricity bill', amount: -4200,  date: '2026-03-12' },
-  { id: 4, description: 'Online purchase',  amount: -2800,  date: '2026-03-11' },
-  { id: 5, description: 'ATM Withdrawal',   amount: -5000,  date: '2026-03-10' },
-]
+import useWindowTitle from '../../hooks/useWindowTitle'
+import { useTheme } from '../../context/ThemeContext'
+import { useClientAuth } from '../../context/ClientAuthContext'
+import { useClientAccounts } from '../../context/ClientAccountsContext'
+import { useClientPayments } from '../../context/ClientPaymentsContext'
+import { NAV_ITEMS } from '../../layouts/ClientPortalLayout'
+import { fmt } from '../../utils/formatting'
 
 const MOCK_RECIPIENTS = [
   { id: 1, name: 'Ivan Petrović' },
@@ -48,20 +15,6 @@ const MOCK_RECIPIENTS = [
 ]
 
 const EXCHANGE_RATE = 117.35
-
-const NAV_ITEMS = [
-  { label: 'Home',      href: '/client',           icon: 'M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z' },
-  { label: 'Accounts',  href: '/client/accounts',  icon: 'M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z' },
-  { label: 'Payments',  href: '/client/payments',  icon: 'M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z' },
-  { label: 'Transfers', href: '/client/transfers', icon: 'M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4' },
-  { label: 'Exchange',  href: '/client/exchange',  icon: 'M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15' },
-  { label: 'Cards',     href: '/client/cards',     icon: 'M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z' },
-  { label: 'Loans',     href: '/client/loans',     icon: 'M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z' },
-]
-
-function fmt(n) {
-  return n.toLocaleString('sr-RS', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
-}
 
 function BalanceCarousel({ accounts }) {
   const multi = accounts.length > 1
@@ -197,11 +150,15 @@ export default function ClientHomePage() {
   useWindowTitle('AnkaBanka')
   const { dark, toggle } = useTheme()
   const { clientUser, clientLogout } = useClientAuth()
+  const { accounts } = useClientAccounts()
+  const { payments } = useClientPayments()
   const navigate = useNavigate()
   const [offset, setOffset] = useState({ x: 0, y: 0 })
   const [rsd, setRsd] = useState('')
   const [eur, setEur] = useState('')
   const [sidebarOpen, setSidebarOpen] = useState(true)
+
+  const recentTransactions = payments.slice(0, 5)
 
   useEffect(() => {
     if (clientUser) return
@@ -397,27 +354,31 @@ export default function ClientHomePage() {
                 }}>
 
                   {/* ① Balance carousel */}
-                  <BalanceCarousel accounts={MOCK_CLIENT_ACCOUNTS} />
+                  <BalanceCarousel accounts={accounts} />
 
                   {/* ② Recent transactions — tall, spans both left rows */}
                   <div style={{ gridArea: 'transactions' }} className="bg-white/70 dark:bg-slate-900/70 backdrop-blur border border-slate-200 dark:border-slate-700 rounded-xl p-5 flex flex-col">
                     <div className="flex items-center justify-between mb-4">
                       <p className="text-xs tracking-widest uppercase text-slate-400 dark:text-slate-500">Recent transactions</p>
-                      <button className="text-slate-400 hover:text-violet-500 dark:hover:text-violet-400 transition-colors" title="Switch account">
+                      <button
+                        onClick={() => navigate('/client/payments')}
+                        className="text-slate-400 hover:text-violet-500 dark:hover:text-violet-400 transition-colors"
+                        title="View all payments"
+                      >
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 6h16M4 12h16M4 18h7" />
                         </svg>
                       </button>
                     </div>
                     <div className="space-y-1">
-                      {MOCK_TRANSACTIONS.map((tx) => (
-                        <div key={tx.id} className="flex items-center justify-between py-2 px-3 rounded-lg hover:bg-white/60 dark:hover:bg-slate-800/40 transition-colors">
+                      {recentTransactions.map((p) => (
+                        <div key={p.id} onClick={() => navigate(`/client/payments/${p.id}`)} className="flex items-center justify-between py-2 px-3 rounded-lg hover:bg-white/60 dark:hover:bg-slate-800/40 transition-colors cursor-pointer">
                           <div className="min-w-0">
-                            <p className="text-sm text-slate-700 dark:text-slate-300 font-light truncate">{tx.description}</p>
-                            <p className="text-xs text-slate-400 dark:text-slate-500">{tx.date}</p>
+                            <p className="text-sm text-slate-700 dark:text-slate-300 font-light truncate">{p.recipient}</p>
+                            <p className="text-xs text-slate-400 dark:text-slate-500">{p.dateTime.split(' ')[0]}</p>
                           </div>
-                          <span className={`text-sm font-medium ml-4 shrink-0 ${tx.amount > 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-500 dark:text-slate-400'}`}>
-                            {tx.amount > 0 ? '+' : ''}{fmt(tx.amount)} RSD
+                          <span className={`text-sm font-medium ml-4 shrink-0 ${p.amount > 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-500 dark:text-slate-400'}`}>
+                            {p.amount > 0 ? '+' : ''}{fmt(p.amount)} {p.currency}
                           </span>
                         </div>
                       ))}

@@ -1,53 +1,15 @@
 import { useNavigate } from 'react-router-dom'
-import useWindowTitle from '../hooks/useWindowTitle'
-import ClientPortalLayout from '../layouts/ClientPortalLayout'
-
-// Mock data — replace with GET /api/accounts/my when backend is ready
-const MOCK_CLIENT_ACCOUNTS = [
-  {
-    id: 1,
-    accountNumber: '265-0000000123456-78',
-    accountName: 'Standard Current',
-    currency: 'RSD',
-    availableBalance: 121_234.00,
-    balance: 123_456.00,
-    type: 'personal',
-    subtype: 'standard',
-    status: 'active',
-  },
-  {
-    id: 2,
-    accountNumber: '265-0000000234567-89',
-    accountName: 'Savings',
-    currency: 'RSD',
-    availableBalance: 45_000.00,
-    balance: 45_000.00,
-    type: 'personal',
-    subtype: 'savings',
-    status: 'active',
-  },
-  {
-    id: 3,
-    accountNumber: '265-0000000345678-90',
-    accountName: 'Foreign Currency',
-    currency: 'EUR',
-    availableBalance: 850.00,
-    balance: 850.00,
-    type: 'personal',
-    subtype: 'standard',
-    status: 'active',
-  },
-]
-
-function fmt(n) {
-  return n.toLocaleString('sr-RS', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
-}
+import useWindowTitle from '../../hooks/useWindowTitle'
+import ClientPortalLayout from '../../layouts/ClientPortalLayout'
+import { useClientAccounts } from '../../context/ClientAccountsContext'
+import { fmt } from '../../utils/formatting'
 
 export default function ClientAccountsOverviewPage() {
   useWindowTitle('Accounts | AnkaBanka')
   const navigate = useNavigate()
+  const { accounts } = useClientAccounts()
 
-  const sorted = [...MOCK_CLIENT_ACCOUNTS].sort((a, b) => b.availableBalance - a.availableBalance)
+  const sorted = [...accounts].sort((a, b) => b.availableBalance - a.availableBalance)
 
   return (
     <ClientPortalLayout>

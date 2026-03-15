@@ -1,0 +1,35 @@
+import { createContext, useContext, useState, useEffect } from 'react'
+import { clientAccountService } from '../services/clientAccountService'
+
+const ClientAccountsContext = createContext()
+
+export function ClientAccountsProvider({ children }) {
+  const [accounts, setAccounts] = useState([])
+  const [loading, setLoading]   = useState(true)
+  const [error, setError]       = useState(null)
+
+  async function reload() {
+    setLoading(true)
+    try {
+      const data = await clientAccountService.getMyAccounts()
+      setAccounts(data)
+      setError(null)
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => { reload() }, [])
+
+  return (
+    <ClientAccountsContext.Provider value={{ accounts, loading, error, reload }}>
+      {children}
+    </ClientAccountsContext.Provider>
+  )
+}
+
+export function useClientAccounts() {
+  return useContext(ClientAccountsContext)
+}

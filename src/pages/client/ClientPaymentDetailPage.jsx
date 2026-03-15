@@ -1,12 +1,9 @@
 import { useParams, useNavigate } from 'react-router-dom'
-import useWindowTitle from '../hooks/useWindowTitle'
-import ClientPortalLayout from '../layouts/ClientPortalLayout'
-import { MOCK_PAYMENTS } from '../mocks/payments'
-import { PAYMENT_STATUS_STYLES } from '../models/Payment'
-
-function fmt(n) {
-  return n.toLocaleString('sr-RS', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
-}
+import useWindowTitle from '../../hooks/useWindowTitle'
+import ClientPortalLayout from '../../layouts/ClientPortalLayout'
+import { useClientPayments } from '../../context/ClientPaymentsContext'
+import { PAYMENT_STATUS_STYLES } from '../../models/Payment'
+import { fmt } from '../../utils/formatting'
 
 function Row({ label, value }) {
   return (
@@ -20,8 +17,9 @@ function Row({ label, value }) {
 export default function ClientPaymentDetailPage() {
   const { id } = useParams()
   const navigate = useNavigate()
+  const { payments } = useClientPayments()
 
-  const payment = MOCK_PAYMENTS.find((p) => p.id === Number(id))
+  const payment = payments.find((p) => p.id === Number(id))
 
   useWindowTitle(payment ? `Payment ${payment.reference} | AnkaBanka` : 'Payment | AnkaBanka')
 
