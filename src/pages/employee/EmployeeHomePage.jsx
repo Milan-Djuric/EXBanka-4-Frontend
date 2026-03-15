@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import useWindowTitle from '../hooks/useWindowTitle'
-import { useTheme } from '../context/ThemeContext'
-import { useAuth } from '../context/AuthContext'
+import useWindowTitle from '../../hooks/useWindowTitle'
+import { useTheme } from '../../context/ThemeContext'
+import { useAuth } from '../../context/AuthContext'
 
 const PERMISSION_META = {
   isAdmin: {

@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react'
 import { useParams, Link } from 'react-router-dom'
-import useWindowTitle from '../hooks/useWindowTitle'
-import { useEmployees } from '../context/EmployeesContext'
-import { PERMISSIONS } from '../models/Employee'
+import useWindowTitle from '../../hooks/useWindowTitle'
+import { useEmployees } from '../../context/EmployeesContext'
+import { PERMISSIONS } from '../../models/Employee'
 
 export default function EmployeeDetailPage() {
   const { id } = useParams()

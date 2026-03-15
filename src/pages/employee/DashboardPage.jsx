@@ -1,6 +1,6 @@
 import { useNavigate, Link } from 'react-router-dom'
-import useWindowTitle from '../hooks/useWindowTitle'
-import { useAuth } from '../context/AuthContext'
+import useWindowTitle from '../../hooks/useWindowTitle'
+import { useAuth } from '../../context/AuthContext'
 
 export default function DashboardPage() {
   useWindowTitle('Dashboard | AnkaBanka')

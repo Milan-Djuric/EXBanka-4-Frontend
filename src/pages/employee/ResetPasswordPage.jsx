@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useSearchParams, Link } from 'react-router-dom'
-import useWindowTitle from '../hooks/useWindowTitle'
-import { authService } from '../services/authService'
+import useWindowTitle from '../../hooks/useWindowTitle'
+import { authService } from '../../services/authService'
 
 const MIN_LENGTH = 8
 const MAX_LENGTH = 32

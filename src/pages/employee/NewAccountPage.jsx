@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
-import useWindowTitle from '../hooks/useWindowTitle'
-import { useAccounts } from '../context/AccountsContext'
-import { useClients } from '../context/ClientsContext'
-import { useAuth } from '../context/AuthContext'
+import useWindowTitle from '../../hooks/useWindowTitle'
+import { useAccounts } from '../../context/AccountsContext'
+import { useClients } from '../../context/ClientsContext'
+import { useAuth } from '../../context/AuthContext'
 
 const FOREIGN_CURRENCIES = ['EUR', 'USD', 'GBP', 'CHF', 'JPY', 'CAD', 'AUD']
 

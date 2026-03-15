@@ -1,8 +1,8 @@
 import { useParams, useNavigate } from 'react-router-dom'
-import useWindowTitle from '../hooks/useWindowTitle'
-import ClientPortalLayout from '../layouts/ClientPortalLayout'
-import { MOCK_PAYMENTS } from '../mocks/payments'
-import { PAYMENT_STATUS_STYLES } from '../models/Payment'
+import useWindowTitle from '../../hooks/useWindowTitle'
+import ClientPortalLayout from '../../layouts/ClientPortalLayout'
+import { MOCK_PAYMENTS } from '../../mocks/payments'
+import { PAYMENT_STATUS_STYLES } from '../../models/Payment'
 
 function fmt(n) {
   return n.toLocaleString('sr-RS', { minimumFractionDigits: 2, maximumFractionDigits: 2 })

@@ -1,9 +1,9 @@
 import { useState, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
-import useWindowTitle from '../hooks/useWindowTitle'
-import ClientPortalLayout from '../layouts/ClientPortalLayout'
-import { MOCK_PAYMENTS } from '../mocks/payments'
-import { PAYMENT_STATUSES, PAYMENT_STATUS_STYLES } from '../models/Payment'
+import useWindowTitle from '../../hooks/useWindowTitle'
+import ClientPortalLayout from '../../layouts/ClientPortalLayout'
+import { MOCK_PAYMENTS } from '../../mocks/payments'
+import { PAYMENT_STATUSES, PAYMENT_STATUS_STYLES } from '../../models/Payment'
 
 const STATUS_OPTIONS = ['all', ...PAYMENT_STATUSES]
 
@@ -52,7 +52,15 @@ export default function ClientPaymentsPage() {
     <ClientPortalLayout>
       <div className="px-8 py-8 max-w-4xl mx-auto w-full">
 
-        <h1 className="font-serif text-3xl font-light text-slate-900 dark:text-white mb-1">Payments</h1>
+        <div className="flex items-center justify-between mb-1">
+          <h1 className="font-serif text-3xl font-light text-slate-900 dark:text-white">Payments</h1>
+          <button
+            onClick={() => navigate('/client/payments/new')}
+            className="btn-primary"
+          >
+            + New Payment
+          </button>
+        </div>
         <div className="w-8 h-px bg-violet-500 dark:bg-violet-400 mb-8" />
 
         {/* Filters */}

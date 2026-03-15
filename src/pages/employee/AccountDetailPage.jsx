@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { useParams, Link } from 'react-router-dom'
-import useWindowTitle from '../hooks/useWindowTitle'
-import { useAccounts } from '../context/AccountsContext'
+import useWindowTitle from '../../hooks/useWindowTitle'
+import { useAccounts } from '../../context/AccountsContext'
 
 export default function AccountDetailPage() {
   const { id } = useParams()

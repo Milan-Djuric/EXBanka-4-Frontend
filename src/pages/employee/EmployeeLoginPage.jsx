@@ -1,35 +1,38 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import useWindowTitle from '../hooks/useWindowTitle'
-import { useClientAuth } from '../context/ClientAuthContext'
+import useWindowTitle from '../../hooks/useWindowTitle'
+import { useAuth } from '../../context/AuthContext'
 
 function validate(fields) {
   const errors = {}
-  if (!fields.email)    errors.email    = 'Email is required.'
-  if (!fields.password) errors.password = 'Password is required.'
+  if (!fields.email) {
+    errors.email = 'Email is required.'
+  }
+  if (!fields.password) {
+    errors.password = 'Password is required.'
+  }
   return errors
 }
 
-export default function ClientLoginPage() {
-  useWindowTitle('Sign In | AnkaBanka')
-  const { clientLogin } = useClientAuth()
+function EmployeeLoginPage() {
+  useWindowTitle('Employee Login | AnkaBanka')
+  const { login } = useAuth()
   const navigate = useNavigate()
 
-  const [fields, setFields]       = useState({ email: '', password: '' })
-  const [touched, setTouched]     = useState({ email: false, password: false })
+  const [fields, setFields] = useState({ email: '', password: '' })
+  const [touched, setTouched] = useState({ email: false, password: false })
   const [submitted, setSubmitted] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
   const [authError, setAuthError] = useState(null)
 
   const errors = validate(fields)
   const visibleErrors = {
-    email:    (touched.email    || submitted) ? errors.email    : undefined,
+    email: (touched.email || submitted) ? errors.email : undefined,
     password: (touched.password || submitted) ? errors.password : undefined,
   }
 
   function handleChange(e) {
     setFields((prev) => ({ ...prev, [e.target.name]: e.target.value }))
-    setAuthError(null)
   }
 
   function handleBlur(e) {
@@ -41,8 +44,8 @@ export default function ClientLoginPage() {
     setSubmitted(true)
     if (Object.keys(errors).length > 0) return
     try {
-      await clientLogin(fields.email, fields.password)
-      navigate('/client')
+      await login(fields.email, fields.password)
+      navigate('/')
     } catch {
       setAuthError('Invalid email or password.')
     }
@@ -52,7 +55,7 @@ export default function ClientLoginPage() {
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex items-center justify-center px-6 py-16">
       <div className="w-full max-w-md">
         <div className="text-center mb-10">
-          <Link to="/client" className="inline-flex items-center gap-3 mb-8">
+          <Link to="/" className="inline-flex items-center gap-3 mb-8">
             <div className="w-7 h-7 border border-violet-500 dark:border-violet-400 flex items-center justify-center">
               <span className="text-violet-500 dark:text-violet-400 text-xs font-serif font-semibold">A</span>
             </div>
@@ -60,7 +63,8 @@ export default function ClientLoginPage() {
               Anka<span className="text-violet-600 dark:text-violet-400">Banka</span>
             </span>
           </Link>
-          <h1 className="font-serif text-4xl font-light text-slate-900 dark:text-white mb-3">Sign In</h1>
+          <p className="text-xs tracking-widest uppercase text-violet-600 dark:text-violet-400 mb-4">Employee Portal</p>
+          <h1 className="font-serif text-4xl font-light text-slate-900 dark:text-white mb-3">Staff Sign In</h1>
           <div className="w-10 h-px bg-violet-500 dark:bg-violet-400 mx-auto" />
         </div>
 
@@ -92,12 +96,20 @@ export default function ClientLoginPage() {
 
             {/* Password */}
             <div>
-              <label
-                htmlFor="password"
-                className="block text-xs tracking-widest uppercase text-slate-600 dark:text-slate-400 mb-2"
-              >
-                Password
-              </label>
+              <div className="flex items-center justify-between mb-2">
+                <label
+                  htmlFor="password"
+                  className="block text-xs tracking-widest uppercase text-slate-600 dark:text-slate-400"
+                >
+                  Password
+                </label>
+                <Link
+                  to="/forgot-password"
+                  className="text-xs text-violet-600 dark:text-violet-400 hover:text-violet-500 dark:hover:text-violet-300 transition-colors"
+                >
+                  Forgot password?
+                </Link>
+              </div>
               <div className="relative">
                 <input
                   id="password"
@@ -141,8 +153,9 @@ export default function ClientLoginPage() {
             )}
           </form>
         </div>
-
       </div>
     </div>
   )
 }
+
+export default EmployeeLoginPage

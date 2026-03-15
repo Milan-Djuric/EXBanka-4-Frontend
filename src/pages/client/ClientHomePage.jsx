@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import useWindowTitle from '../hooks/useWindowTitle'
-import { useTheme } from '../context/ThemeContext'
-import { useClientAuth } from '../context/ClientAuthContext'
+import useWindowTitle from '../../hooks/useWindowTitle'
+import { useTheme } from '../../context/ThemeContext'
+import { useClientAuth } from '../../context/ClientAuthContext'
 
 // ─── Mock data (swap for real API calls later) ────────────────────────────────
 
@@ -403,7 +403,11 @@ export default function ClientHomePage() {
                   <div style={{ gridArea: 'transactions' }} className="bg-white/70 dark:bg-slate-900/70 backdrop-blur border border-slate-200 dark:border-slate-700 rounded-xl p-5 flex flex-col">
                     <div className="flex items-center justify-between mb-4">
                       <p className="text-xs tracking-widest uppercase text-slate-400 dark:text-slate-500">Recent transactions</p>
-                      <button className="text-slate-400 hover:text-violet-500 dark:hover:text-violet-400 transition-colors" title="Switch account">
+                      <button
+                        onClick={() => navigate('/client/payments')}
+                        className="text-slate-400 hover:text-violet-500 dark:hover:text-violet-400 transition-colors"
+                        title="View all payments"
+                      >
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 6h16M4 12h16M4 18h7" />
                         </svg>
@@ -411,7 +415,7 @@ export default function ClientHomePage() {
                     </div>
                     <div className="space-y-1">
                       {MOCK_TRANSACTIONS.map((tx) => (
-                        <div key={tx.id} className="flex items-center justify-between py-2 px-3 rounded-lg hover:bg-white/60 dark:hover:bg-slate-800/40 transition-colors">
+                        <div key={tx.id} onClick={() => navigate(`/client/payments/${tx.id}`)} className="flex items-center justify-between py-2 px-3 rounded-lg hover:bg-white/60 dark:hover:bg-slate-800/40 transition-colors cursor-pointer">
                           <div className="min-w-0">
                             <p className="text-sm text-slate-700 dark:text-slate-300 font-light truncate">{tx.description}</p>
                             <p className="text-xs text-slate-400 dark:text-slate-500">{tx.date}</p>

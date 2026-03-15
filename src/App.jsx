@@ -7,26 +7,28 @@ import { ClientsProvider } from './context/ClientsContext'
 import { AccountsProvider } from './context/AccountsContext'
 import MainLayout from './layouts/MainLayout'
 import ProtectedRoute from './components/ProtectedRoute'
-import EmployeeHomePage from './pages/EmployeeHomePage'
-import EmployeeLoginPage from './pages/EmployeeLoginPage'
-import ForgotPasswordPage from './pages/ForgotPasswordPage'
-import AdminEmployeesPage from './pages/AdminEmployeesPage'
-import EmployeeDetailPage from './pages/EmployeeDetailPage'
-import NewEmployeePage from './pages/NewEmployeePage'
-import ClientsPage from './pages/ClientsPage'
-import ClientDetailPage from './pages/ClientDetailPage'
-import NewClientPage from './pages/NewClientPage'
-import ClientAccountsPage from './pages/ClientAccountsPage'
-import AccountDetailPage from './pages/AccountDetailPage'
-import NewAccountPage from './pages/NewAccountPage'
-import ClientLoginPage from './pages/ClientLoginPage'
-import ClientHomePage from './pages/ClientHomePage'
-import ClientAccountsOverviewPage from './pages/ClientAccountsOverviewPage'
-import ClientAccountDetailPage from './pages/ClientAccountDetailPage'
-import ClientPaymentsPage from './pages/ClientPaymentsPage'
-import ClientPaymentDetailPage from './pages/ClientPaymentDetailPage'
-import SetPasswordPage from './pages/SetPasswordPage'
-import ResetPasswordPage from './pages/ResetPasswordPage'
+import EmployeeHomePage from './pages/employee/EmployeeHomePage'
+import EmployeeLoginPage from './pages/employee/EmployeeLoginPage'
+import ForgotPasswordPage from './pages/employee/ForgotPasswordPage'
+import AdminEmployeesPage from './pages/employee/AdminEmployeesPage'
+import EmployeeDetailPage from './pages/employee/EmployeeDetailPage'
+import NewEmployeePage from './pages/employee/NewEmployeePage'
+import ClientsPage from './pages/employee/ClientsPage'
+import ClientDetailPage from './pages/employee/ClientDetailPage'
+import NewClientPage from './pages/employee/NewClientPage'
+import ClientAccountsPage from './pages/employee/ClientAccountsPage'
+import AccountDetailPage from './pages/employee/AccountDetailPage'
+import NewAccountPage from './pages/employee/NewAccountPage'
+import ClientLoginPage from './pages/client/ClientLoginPage'
+import ClientHomePage from './pages/client/ClientHomePage'
+import ClientAccountsOverviewPage from './pages/client/ClientAccountsOverviewPage'
+import ClientAccountDetailPage from './pages/client/ClientAccountDetailPage'
+import ClientPaymentsPage from './pages/client/ClientPaymentsPage'
+import ClientPaymentDetailPage from './pages/client/ClientPaymentDetailPage'
+import ClientNewPaymentPage from './pages/client/ClientNewPaymentPage'
+import ClientPaymentVerifyPage from './pages/client/ClientPaymentVerifyPage'
+import SetPasswordPage from './pages/employee/SetPasswordPage'
+import ResetPasswordPage from './pages/employee/ResetPasswordPage'
 import NotFoundPage from './pages/NotFoundPage'
 
 function App() {
@@ -67,6 +69,8 @@ function App() {
           <Route path="/client/accounts" element={<ClientAccountsOverviewPage />} />
           <Route path="/client/accounts/:id" element={<ClientAccountDetailPage />} />
           <Route path="/client/payments" element={<ClientPaymentsPage />} />
+          <Route path="/client/payments/new" element={<ClientNewPaymentPage />} />
+          <Route path="/client/payments/verify" element={<ClientPaymentVerifyPage />} />
           <Route path="/client/payments/:id" element={<ClientPaymentDetailPage />} />
 
           <Route path="*" element={<NotFoundPage />} />

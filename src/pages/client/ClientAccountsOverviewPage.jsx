@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom'
-import useWindowTitle from '../hooks/useWindowTitle'
-import ClientPortalLayout from '../layouts/ClientPortalLayout'
+import useWindowTitle from '../../hooks/useWindowTitle'
+import ClientPortalLayout from '../../layouts/ClientPortalLayout'
 
 // Mock data — replace with GET /api/accounts/my when backend is ready
 const MOCK_CLIENT_ACCOUNTS = [

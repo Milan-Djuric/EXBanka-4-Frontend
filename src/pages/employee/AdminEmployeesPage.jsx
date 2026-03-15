@@ -1,9 +1,9 @@
 import { useState, useEffect, useRef } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
-import useWindowTitle from '../hooks/useWindowTitle'
-import { useEmployees } from '../context/EmployeesContext'
-import { employeeService } from '../services/employeeService'
-import { employeeFromApi } from '../models/Employee'
+import useWindowTitle from '../../hooks/useWindowTitle'
+import { useEmployees } from '../../context/EmployeesContext'
+import { employeeService } from '../../services/employeeService'
+import { employeeFromApi } from '../../models/Employee'
 
 const EMPTY_FILTERS = { firstName: '', lastName: '', email: '', position: '' }
 

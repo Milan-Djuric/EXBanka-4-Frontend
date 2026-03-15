@@ -1,8 +1,8 @@
 import { useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import useWindowTitle from '../hooks/useWindowTitle'
-import ClientPortalLayout from '../layouts/ClientPortalLayout'
-import { useClientAuth } from '../context/ClientAuthContext'
+import useWindowTitle from '../../hooks/useWindowTitle'
+import ClientPortalLayout from '../../layouts/ClientPortalLayout'
+import { useClientAuth } from '../../context/ClientAuthContext'
 
 // Mock data — replace with GET /api/accounts/{accountId}
 const MOCK_CLIENT_ACCOUNTS = [
@@ -185,7 +185,7 @@ export default function ClientAccountDetailPage() {
             Change Name
           </button>
           <button
-            onClick={() => navigate('/client/payments')}
+            onClick={() => navigate('/client/payments/new')}
             className="inline-flex items-center gap-2 px-4 py-2 text-xs tracking-widest uppercase border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:border-violet-400 dark:hover:border-violet-500 hover:text-violet-600 dark:hover:text-violet-400 rounded-lg transition-all"
           >
             <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
