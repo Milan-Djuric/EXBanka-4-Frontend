@@ -48,12 +48,35 @@ export default function EmployeeDetailPage() {
     setEditing(true)
   }
 
+  const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+
+  function validate() {
+    const errs = {}
+    if (!form.firstName?.trim())  errs.firstName  = 'This field is required.'
+    if (!form.lastName?.trim())   errs.lastName   = 'This field is required.'
+    if (!form.email?.trim())      errs.email      = 'This field is required.'
+    else if (!EMAIL_RE.test(form.email)) errs.email = 'Wrong email format.'
+    if (!form.username?.trim())   errs.username   = 'This field is required.'
+    if (!form.position?.trim())   errs.position   = 'This field is required.'
+    if (!form.department?.trim()) errs.department = 'This field is required.'
+    if (!/^\d{13}$/.test(form.jmbg)) errs.jmbg   = 'Must be exactly 13 digits.'
+    if (form.dateOfBirth && new Date(form.dateOfBirth) >= new Date()) errs.dateOfBirth = 'Date of birth cannot be in the future.'
+    return errs
+  }
+
   function handleChange(e) {
     const { name, value, type, checked } = e.target
     setForm((prev) => ({ ...prev, [name]: type === 'checkbox' ? checked : value }))
+    if (fieldErrors[name]) setFieldErrors((prev) => ({ ...prev, [name]: '' }))
   }
 
-  const [jmbgError, setJmbgError] = useState('')
+  function handleBlur(e) {
+    const { name } = e.target
+    const errs = validate()
+    if (errs[name]) setFieldErrors((prev) => ({ ...prev, [name]: errs[name] }))
+  }
+
+  const [fieldErrors, setFieldErrors] = useState({})
   const [adminConfirm, setAdminConfirm] = useState(false)
   const [pendingAdminValue, setPendingAdminValue] = useState(false)
 
@@ -77,11 +100,9 @@ export default function EmployeeDetailPage() {
   }
 
   async function handleSave() {
-    if (!/^\d{13}$/.test(form.jmbg)) {
-      setJmbgError('Must be exactly 13 digits.')
-      return
-    }
-    setJmbgError('')
+    const errs = validate()
+    if (Object.keys(errs).length) { setFieldErrors(errs); return }
+    setFieldErrors({})
     try {
       await updateEmployee(emp.id, form)
       setEditing(false)
@@ -132,23 +153,23 @@ export default function EmployeeDetailPage() {
           {editing ? (
             <>
               <Section title="Personal">
-                <EditRow label="First Name"    name="firstName"   value={form.firstName}   onChange={handleChange} />
-                <EditRow label="Last Name"     name="lastName"    value={form.lastName}    onChange={handleChange} />
-                <EditRow label="Date of Birth" name="dateOfBirth" value={form.dateOfBirth} onChange={handleChange} type="date" />
+                <EditRow label="First Name"    name="firstName"   value={form.firstName}   onChange={handleChange} onBlur={handleBlur} error={fieldErrors.firstName} />
+                <EditRow label="Last Name"     name="lastName"    value={form.lastName}    onChange={handleChange} onBlur={handleBlur} error={fieldErrors.lastName} />
+                <EditRow label="Date of Birth" name="dateOfBirth" value={form.dateOfBirth} onChange={handleChange} onBlur={handleBlur} type="date" error={fieldErrors.dateOfBirth} />
                 <SelectRow label="Gender" name="gender" value={form.gender} onChange={handleChange} options={['Male', 'Female', 'Other']} />
-                <EditRow label="JMBG" name="jmbg" value={form.jmbg} onChange={handleChange} maxLength={13} error={jmbgError} />
+                <EditRow label="JMBG" name="jmbg" value={form.jmbg} onChange={handleChange} onBlur={handleBlur} maxLength={13} error={fieldErrors.jmbg} />
               </Section>
 
               <Section title="Contact">
-                <EditRow label="Email"   name="email"       value={form.email}       onChange={handleChange} type="email" />
-                <EditRow label="Phone"   name="phoneNumber" value={form.phoneNumber} onChange={handleChange} />
-                <EditRow label="Address" name="address"     value={form.address}     onChange={handleChange} />
+                <EditRow label="Email"   name="email"       value={form.email}       onChange={handleChange} onBlur={handleBlur} type="email" error={fieldErrors.email} />
+                <EditRow label="Phone"   name="phoneNumber" value={form.phoneNumber} onChange={handleChange} onBlur={handleBlur} />
+                <EditRow label="Address" name="address"     value={form.address}     onChange={handleChange} onBlur={handleBlur} />
               </Section>
 
               <Section title="Employment">
-                <EditRow label="Username"   name="username"   value={form.username}   onChange={handleChange} />
-                <EditRow label="Position"   name="position"   value={form.position}   onChange={handleChange} />
-                <EditRow label="Department" name="department" value={form.department} onChange={handleChange} />
+                <EditRow label="Username"   name="username"   value={form.username}   onChange={handleChange} onBlur={handleBlur} error={fieldErrors.username} />
+                <EditRow label="Position"   name="position"   value={form.position}   onChange={handleChange} onBlur={handleBlur} error={fieldErrors.position} />
+                <EditRow label="Department" name="department" value={form.department} onChange={handleChange} onBlur={handleBlur} error={fieldErrors.department} />
                 <Row label="Employee ID" value={String(emp.id)} />
                 <div className="flex items-center justify-between py-3 border-b border-slate-100 dark:border-slate-800 last:border-0">
                   <span className="text-xs tracking-widest uppercase text-slate-500 dark:text-slate-400">Active</span>
@@ -323,7 +344,7 @@ function Row({ label, value }) {
   )
 }
 
-function EditRow({ label, name, value, onChange, type = 'text', maxLength, error }) {
+function EditRow({ label, name, value, onChange, onBlur, type = 'text', maxLength, error }) {
   return (
     <div className="py-2 border-b border-slate-100 dark:border-slate-800 last:border-0">
       <div className="flex items-center justify-between gap-4">
@@ -333,6 +354,7 @@ function EditRow({ label, name, value, onChange, type = 'text', maxLength, error
           name={name}
           value={value}
           onChange={onChange}
+          onBlur={onBlur}
           maxLength={maxLength}
           className="text-sm text-right bg-transparent border-b border-violet-300 dark:border-violet-600 text-slate-900 dark:text-white focus:outline-none focus:border-violet-500 w-full max-w-xs"
         />
