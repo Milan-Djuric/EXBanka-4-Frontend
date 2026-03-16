@@ -34,10 +34,18 @@ export default function NewClientPage() {
     setForm((prev) => ({ ...prev, [name]: value }))
   }
 
+  function handleBlur(e) {
+    const { name } = e.target
+    const errs = validate()
+    if (errs[name]) setErrors((prev) => ({ ...prev, [name]: errs[name] }))
+  }
+
   function validate() {
     const errs = {}
     REQUIRED.forEach((f) => { if (!form[f].trim()) errs[f] = 'This field is required.' })
     if (!/^\d{13}$/.test(form.jmbg)) errs.jmbg = 'Must be exactly 13 digits.'
+    if (!errs.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) errs.email = 'Please enter a valid email address.'
+    if (!errs.dateOfBirth && form.dateOfBirth && new Date(form.dateOfBirth) >= new Date()) errs.dateOfBirth = 'Date of birth cannot be in the future.'
     const emailUsed = clients.some(
       (c) => c.email.toLowerCase() === form.email.trim().toLowerCase()
     )
@@ -136,7 +144,7 @@ export default function NewClientPage() {
         <h1 className="font-serif text-4xl font-light text-slate-900 dark:text-white mb-3">New Client</h1>
         <div className="w-10 h-px bg-violet-500 dark:bg-violet-400 mb-10" />
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} noValidate className="space-y-6">
 
           {/* Personal */}
           <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-8 shadow-sm">
@@ -144,22 +152,22 @@ export default function NewClientPage() {
             <div className="space-y-5">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                 <Field label="First Name *" error={errors.firstName}>
-                  <input name="firstName" value={form.firstName} onChange={handleChange}
+                  <input name="firstName" value={form.firstName} onChange={handleChange} onBlur={handleBlur}
                     className={`input-field${errors.firstName ? ' input-error' : ''}`} />
                 </Field>
                 <Field label="Last Name *" error={errors.lastName}>
-                  <input name="lastName" value={form.lastName} onChange={handleChange}
+                  <input name="lastName" value={form.lastName} onChange={handleChange} onBlur={handleBlur}
                     className={`input-field${errors.lastName ? ' input-error' : ''}`} />
                 </Field>
               </div>
               <Field label="JMBG *" error={errors.jmbg}>
-                <input name="jmbg" value={form.jmbg} onChange={handleChange}
+                <input name="jmbg" value={form.jmbg} onChange={handleChange} onBlur={handleBlur}
                   maxLength={13} placeholder="13 digits"
                   className={`input-field font-mono${errors.jmbg ? ' input-error' : ''}`} />
               </Field>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                 <Field label="Date of Birth *" error={errors.dateOfBirth}>
-                  <input type="date" name="dateOfBirth" value={form.dateOfBirth} onChange={handleChange}
+                  <input type="date" name="dateOfBirth" value={form.dateOfBirth} onChange={handleChange} onBlur={handleBlur}
                     className={`input-field${errors.dateOfBirth ? ' input-error' : ''}`} />
                 </Field>
                 <Field label="Gender *">
@@ -183,16 +191,16 @@ export default function NewClientPage() {
             <p className="text-xs tracking-widest uppercase text-violet-600 dark:text-violet-400 mb-6">Contact</p>
             <div className="space-y-5">
               <Field label="Email *" error={errors.email}>
-                <input type="email" name="email" value={form.email} onChange={handleChange}
+                <input type="email" name="email" value={form.email} onChange={handleChange} onBlur={handleBlur}
                   className={`input-field${errors.email ? ' input-error' : ''}`} />
               </Field>
               <Field label="Phone Number *" error={errors.phoneNumber}>
-                <input name="phoneNumber" value={form.phoneNumber} onChange={handleChange}
+                <input name="phoneNumber" value={form.phoneNumber} onChange={handleChange} onBlur={handleBlur}
                   placeholder="+381…"
                   className={`input-field${errors.phoneNumber ? ' input-error' : ''}`} />
               </Field>
               <Field label="Address *" error={errors.address}>
-                <input name="address" value={form.address} onChange={handleChange}
+                <input name="address" value={form.address} onChange={handleChange} onBlur={handleBlur}
                   className={`input-field${errors.address ? ' input-error' : ''}`} />
               </Field>
             </div>
@@ -202,7 +210,7 @@ export default function NewClientPage() {
           <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-8 shadow-sm">
             <p className="text-xs tracking-widest uppercase text-violet-600 dark:text-violet-400 mb-6">Account</p>
             <Field label="Username *" error={errors.username}>
-              <input name="username" value={form.username} onChange={handleChange}
+              <input name="username" value={form.username} onChange={handleChange} onBlur={handleBlur}
                 className={`input-field${errors.username ? ' input-error' : ''}`} />
             </Field>
           </div>

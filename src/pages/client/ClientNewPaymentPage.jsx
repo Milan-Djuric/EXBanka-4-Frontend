@@ -4,6 +4,7 @@ import useWindowTitle from '../../hooks/useWindowTitle'
 import ClientPortalLayout from '../../layouts/ClientPortalLayout'
 import { useClientAccounts } from '../../context/ClientAccountsContext'
 import { fmt } from '../../utils/formatting'
+import { isValidAccountNumber } from '../../models/Recipient'
 
 const EMPTY_FORM = {
   fromAccountId:    '',
@@ -48,13 +49,22 @@ export default function ClientNewPaymentPage() {
     setErrors((prev) => ({ ...prev, [name]: undefined }))
   }
 
+  function handleBlur(e) {
+    const { name } = e.target
+    const errs = validate()
+    if (errs[name]) setErrors((prev) => ({ ...prev, [name]: errs[name] }))
+  }
+
   function validate() {
     const errs = {}
     if (!form.fromAccountId)    errs.fromAccountId    = 'Please select an account.'
     if (!form.recipientName.trim())    errs.recipientName    = 'Recipient name is required.'
-    if (!form.recipientAccount.trim()) errs.recipientAccount = 'Recipient account number is required.'
-    if (!form.amount)           errs.amount           = 'Amount is required.'
-    else if (parseFloat(form.amount) <= 0) errs.amount = 'Amount must be greater than 0.'
+    if (!form.recipientAccount.trim())                        errs.recipientAccount = 'Recipient account number is required.'
+    else if (!isValidAccountNumber(form.recipientAccount))    errs.recipientAccount = 'Invalid account number format (e.g. 265-0000000000000-00).'
+    if (!form.amount)                                         errs.amount = 'Amount is required.'
+    else if (parseFloat(form.amount) <= 0)                    errs.amount = 'Amount must be greater than 0.'
+    else if (selectedAccount && parseFloat(form.amount) > selectedAccount.availableBalance)
+      errs.amount = `Insufficient funds. Available: ${fmt(selectedAccount.availableBalance, selectedAccount.currency)}`
     if (!form.paymentCode.trim())      errs.paymentCode      = 'Payment code is required.'
     if (!form.purpose.trim())          errs.purpose          = 'Payment purpose is required.'
     return errs
@@ -97,6 +107,7 @@ export default function ClientNewPaymentPage() {
                   name="fromAccountId"
                   value={form.fromAccountId}
                   onChange={handleChange}
+                  onBlur={handleBlur}
                   className={`input-field appearance-none pr-10 ${errors.fromAccountId ? 'input-error' : ''}`}
                 >
                   <option value="">Select account…</option>
@@ -127,6 +138,7 @@ export default function ClientNewPaymentPage() {
                   name="recipientName"
                   value={form.recipientName}
                   onChange={handleChange}
+                  onBlur={handleBlur}
                   placeholder="Full name or company"
                   className={`input-field ${errors.recipientName ? 'input-error' : ''}`}
                 />
@@ -136,6 +148,7 @@ export default function ClientNewPaymentPage() {
                   name="recipientAccount"
                   value={form.recipientAccount}
                   onChange={handleChange}
+                  onBlur={handleBlur}
                   placeholder="265-0000000000000-00"
                   className={`input-field font-mono ${errors.recipientAccount ? 'input-error' : ''}`}
                 />
@@ -154,6 +167,7 @@ export default function ClientNewPaymentPage() {
                     name="amount"
                     value={form.amount}
                     onChange={handleChange}
+                    onBlur={handleBlur}
                     placeholder="0.00"
                     min="0.01"
                     step="0.01"
@@ -170,6 +184,7 @@ export default function ClientNewPaymentPage() {
                     name="paymentCode"
                     value={form.paymentCode}
                     onChange={handleChange}
+                    onBlur={handleBlur}
                     placeholder="289"
                     maxLength={3}
                     className={`input-field font-mono ${errors.paymentCode ? 'input-error' : ''}`}
@@ -190,6 +205,7 @@ export default function ClientNewPaymentPage() {
                   name="purpose"
                   value={form.purpose}
                   onChange={handleChange}
+                  onBlur={handleBlur}
                   placeholder="e.g. Rent, Invoice #123…"
                   className={`input-field ${errors.purpose ? 'input-error' : ''}`}
                 />

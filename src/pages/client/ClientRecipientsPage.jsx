@@ -19,6 +19,12 @@ function RecipientForm({ initial = { name: '', accountNumber: '' }, onSave, onCa
     setErrors((prev) => ({ ...prev, [name]: undefined }))
   }
 
+  function handleBlur(e) {
+    const { name } = e.target
+    const errs = validate()
+    if (errs[name]) setErrors((prev) => ({ ...prev, [name]: errs[name] }))
+  }
+
   function validate() {
     const errs = {}
     if (!form.name.trim())                        errs.name          = 'Recipient name is required.'
@@ -44,6 +50,7 @@ function RecipientForm({ initial = { name: '', accountNumber: '' }, onSave, onCa
           name="name"
           value={form.name}
           onChange={handleChange}
+          onBlur={handleBlur}
           placeholder="Full name or company"
           className={`input-field ${errors.name ? 'input-error' : ''}`}
         />
@@ -57,6 +64,7 @@ function RecipientForm({ initial = { name: '', accountNumber: '' }, onSave, onCa
           name="accountNumber"
           value={form.accountNumber}
           onChange={handleChange}
+          onBlur={handleBlur}
           placeholder="265-0000000000000-00"
           className={`input-field font-mono ${errors.accountNumber ? 'input-error' : ''}`}
         />

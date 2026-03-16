@@ -3,10 +3,13 @@ import { Link, useNavigate } from 'react-router-dom'
 import useWindowTitle from '../../hooks/useWindowTitle'
 import { useClientAuth } from '../../context/ClientAuthContext'
 
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+
 function validate(fields) {
   const errors = {}
-  if (!fields.email)    errors.email    = 'Email is required.'
-  if (!fields.password) errors.password = 'Password is required.'
+  if (!fields.email)                    errors.email    = 'Email is required.'
+  else if (!EMAIL_RE.test(fields.email)) errors.email   = 'Please enter a valid email address.'
+  if (!fields.password)                 errors.password = 'Password is required.'
   return errors
 }
 
