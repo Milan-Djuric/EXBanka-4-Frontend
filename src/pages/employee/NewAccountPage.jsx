@@ -4,14 +4,23 @@ import useWindowTitle from '../../hooks/useWindowTitle'
 import { useAccounts } from '../../context/AccountsContext'
 import { useClients } from '../../context/ClientsContext'
 import { useAuth } from '../../context/AuthContext'
+import { PERSONAL_SUBTYPES, BUSINESS_SUBTYPES } from '../../models/BankAccount'
 
 const FOREIGN_CURRENCIES = ['EUR', 'USD', 'GBP', 'CHF', 'JPY', 'CAD', 'AUD']
 
 const EMPTY_FORM = {
   ownerId:      '',
   type:         'personal',
+  subtype:      '',
+  accountName:  '',
   currencyType: 'current',
   currency:     'RSD',
+}
+
+function defaultName(type, subtype) {
+  const list = type === 'personal' ? PERSONAL_SUBTYPES : BUSINESS_SUBTYPES
+  const found = list.find((s) => s.value === subtype)
+  return found ? `${found.label} Account` : ''
 }
 
 export default function NewAccountPage() {
@@ -34,11 +43,32 @@ export default function NewAccountPage() {
     const { name, value } = e.target
     setErrors((prev) => ({ ...prev, [name]: false }))
 
+    if (name === 'type') {
+      setForm((prev) => ({
+        ...prev,
+        type:         value,
+        subtype:      '',
+        accountName:  '',
+        currencyType: 'current',
+        currency:     'RSD',
+      }))
+      return
+    }
+
+    if (name === 'subtype') {
+      setForm((prev) => ({
+        ...prev,
+        subtype:     value,
+        accountName: defaultName(prev.type, value),
+      }))
+      return
+    }
+
     if (name === 'currencyType') {
       setForm((prev) => ({
         ...prev,
         currencyType: value,
-        currency: value === 'current' ? 'RSD' : '',
+        currency:     value === 'current' ? 'RSD' : '',
       }))
       return
     }
@@ -48,8 +78,10 @@ export default function NewAccountPage() {
 
   function validate() {
     const errs = {}
-    if (!form.ownerId) errs.ownerId = true
-    if (form.currencyType === 'foreign' && !form.currency) errs.currency = true
+    if (!form.ownerId)  errs.ownerId  = true
+    if (!form.subtype)  errs.subtype  = true
+    if (!form.accountName.trim()) errs.accountName = true
+    if (form.type === 'personal' && form.currencyType === 'foreign' && !form.currency) errs.currency = true
     return errs
   }
 
@@ -66,6 +98,8 @@ export default function NewAccountPage() {
         ownerFirstName:      owner.firstName,
         ownerLastName:       owner.lastName,
         type:                form.type,
+        subtype:             form.subtype,
+        accountName:         form.accountName.trim(),
         currencyType:        form.currencyType,
         currency:            form.currency,
         createdByEmployeeId: user?.id ?? null,
@@ -113,6 +147,8 @@ export default function NewAccountPage() {
     )
   }
 
+  const subtypeOptions = form.type === 'personal' ? PERSONAL_SUBTYPES : BUSINESS_SUBTYPES
+
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 px-6 py-16">
       <div className="max-w-2xl mx-auto">
@@ -143,26 +179,26 @@ export default function NewAccountPage() {
                 <p className="text-sm text-slate-400 dark:text-slate-500">Loading clients…</p>
               ) : (
                 <div className="relative">
-                <select
-                  name="ownerId"
-                  value={form.ownerId}
-                  onChange={handleChange}
-                  className={`input-field appearance-none pr-10${errors.ownerId ? ' input-error' : ''}`}
-                >
-                  <option value="">Select a client…</option>
-                  {[...clients]
-                    .sort((a, b) => a.lastName.localeCompare(b.lastName, 'sr'))
-                    .map((c) => (
-                      <option key={c.id} value={c.id}>
-                        {c.fullName} — {c.email}
-                      </option>
-                    ))}
-                </select>
-                <div className="pointer-events-none absolute inset-y-0 right-3 flex items-center">
-                  <svg className="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                  </svg>
-                </div>
+                  <select
+                    name="ownerId"
+                    value={form.ownerId}
+                    onChange={handleChange}
+                    className={`input-field appearance-none pr-10${errors.ownerId ? ' input-error' : ''}`}
+                  >
+                    <option value="">Select a client…</option>
+                    {[...clients]
+                      .sort((a, b) => a.lastName.localeCompare(b.lastName, 'sr'))
+                      .map((c) => (
+                        <option key={c.id} value={c.id}>
+                          {c.fullName} — {c.email}
+                        </option>
+                      ))}
+                  </select>
+                  <div className="pointer-events-none absolute inset-y-0 right-3 flex items-center">
+                    <svg className="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </div>
                 </div>
               )}
             </Field>
@@ -184,6 +220,8 @@ export default function NewAccountPage() {
             <p className="text-xs tracking-widest uppercase text-violet-600 dark:text-violet-400 mb-6">Account Details</p>
 
             <div className="space-y-5">
+
+              {/* Type */}
               <Field label="Account Type *">
                 <div className="flex gap-4">
                   {[
@@ -205,6 +243,41 @@ export default function NewAccountPage() {
                 </div>
               </Field>
 
+              {/* Subtype */}
+              <Field label="Account Subtype *" error={errors.subtype}>
+                <div className="relative">
+                  <select
+                    name="subtype"
+                    value={form.subtype}
+                    onChange={handleChange}
+                    className={`input-field appearance-none pr-10${errors.subtype ? ' input-error' : ''}`}
+                  >
+                    <option value="">Select subtype…</option>
+                    {subtypeOptions.map(({ value, label }) => (
+                      <option key={value} value={value}>{label}</option>
+                    ))}
+                  </select>
+                  <div className="pointer-events-none absolute inset-y-0 right-3 flex items-center">
+                    <svg className="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </div>
+                </div>
+              </Field>
+
+              {/* Account name — auto-filled from subtype, editable */}
+              <Field label="Account Name *" error={errors.accountName}>
+                <input
+                  type="text"
+                  name="accountName"
+                  value={form.accountName}
+                  onChange={handleChange}
+                  placeholder="Select a subtype to auto-fill"
+                  className={`input-field${errors.accountName ? ' input-error' : ''}`}
+                />
+              </Field>
+
+              {/* Currency type */}
               <Field label="Currency Type *">
                 <div className="flex gap-4">
                   {[
@@ -226,7 +299,8 @@ export default function NewAccountPage() {
                 </div>
               </Field>
 
-              {form.currencyType === 'current' ? (
+              {/* Currency display / selection */}
+              {form.currencyType === 'current' && (
                 <Field label="Currency">
                   <input
                     type="text"
@@ -235,7 +309,9 @@ export default function NewAccountPage() {
                     className="input-field opacity-50 cursor-not-allowed"
                   />
                 </Field>
-              ) : (
+              )}
+
+              {form.currencyType === 'foreign' && (
                 <Field label="Currency *" error={errors.currency}>
                   <select
                     name="currency"
@@ -250,6 +326,7 @@ export default function NewAccountPage() {
                   </select>
                 </Field>
               )}
+
             </div>
           </div>
 

@@ -21,10 +21,21 @@ export function ClientAccountsProvider({ children }) {
     }
   }
 
+  async function renameAccount(id, newAccountName) {
+    await clientAccountService.renameAccount(id, newAccountName)
+    setAccounts((prev) =>
+      prev.map((a) => {
+        if (a.id !== id) return a
+        a.accountName = newAccountName
+        return a
+      })
+    )
+  }
+
   useEffect(() => { reload() }, [])
 
   return (
-    <ClientAccountsContext.Provider value={{ accounts, loading, error, reload }}>
+    <ClientAccountsContext.Provider value={{ accounts, loading, error, reload, renameAccount }}>
       {children}
     </ClientAccountsContext.Provider>
   )
