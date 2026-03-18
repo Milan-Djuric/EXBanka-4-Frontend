@@ -22,18 +22,21 @@ export const accountService = {
     return bankAccountFromApi({ id, ...data })
   },
 
-  async createAccount({ ownerId, ownerFirstName, ownerLastName, type, currencyType, currency }) {
+  async createAccount({ ownerId, ownerFirstName, ownerLastName, type, subtype, accountName, currencyType, currency }) {
     let accountType
-    if (type === 'business') {
-      accountType = 'BUSINESS'
-    } else if (currencyType === 'foreign') {
+    if (currencyType === 'foreign') {
       accountType = 'FOREIGN_CURRENCY'
+    } else if (type === 'business') {
+      accountType = 'BUSINESS'
+    } else if (subtype === 'savings') {
+      accountType = 'SAVINGS'
     } else {
       accountType = 'CURRENT'
     }
     const { data } = await apiClient.post('/api/accounts/create', {
       clientId:     ownerId,
       accountType,
+      accountName,
       currencyCode: currency,
     })
     return bankAccountFromApi({ ownerFirstName, ownerLastName, ...data })

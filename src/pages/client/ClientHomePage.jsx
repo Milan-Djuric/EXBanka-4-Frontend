@@ -11,23 +11,24 @@ import { useRecipients } from '../../context/RecipientsContext'
 
 const EXCHANGE_RATE = 117.35
 
-function BalanceCarousel({ accounts }) {
+function BalanceCarousel({ accounts, onRename }) {
   const multi = accounts.length > 1
   const [index, setIndex] = useState(0)
   const [cardHovered, setCardHovered] = useState(false)
   const [nameHovered, setNameHovered] = useState(false)
   const [editingName, setEditingName] = useState(false)
   const [nameInput, setNameInput] = useState('')
-  const [names, setNames] = useState(() =>
-    Object.fromEntries(accounts.map((a) => [a.id, a.accountName]))
-  )
 
   const acct = accounts[index]
-  const currentName = names[acct.id]
+  const currentName = acct.accountName
 
-  function saveName() {
-    if (nameInput.trim()) setNames((prev) => ({ ...prev, [acct.id]: nameInput.trim() }))
-    setEditingName(false)
+  async function saveName() {
+    const trimmed = nameInput.trim()
+    try {
+      if (trimmed && trimmed !== currentName) await onRename(acct.id, trimmed)
+    } finally {
+      setEditingName(false)
+    }
   }
 
   return (
@@ -145,7 +146,7 @@ export default function ClientHomePage() {
   useWindowTitle('AnkaBanka')
   const { dark, toggle } = useTheme()
   const { clientUser, clientLogout } = useClientAuth()
-  const { accounts, reload: reloadAccounts } = useClientAccounts()
+  const { accounts, reload: reloadAccounts, renameAccount } = useClientAccounts()
   const { payments } = useClientPayments()
   const { recipients } = useRecipients()
   const navigate = useNavigate()
@@ -354,7 +355,7 @@ export default function ClientHomePage() {
                 }}>
 
                   {/* ① Balance carousel */}
-                  {accounts.length > 0 && <BalanceCarousel accounts={accounts} />}
+                  {accounts.length > 0 && <BalanceCarousel accounts={accounts} onRename={renameAccount} />}
 
                   {/* ② Recent transactions — tall, spans both left rows */}
                   <div style={{ gridArea: 'transactions' }} className="bg-white/70 dark:bg-slate-900/70 backdrop-blur border border-slate-200 dark:border-slate-700 rounded-xl p-5 flex flex-col">

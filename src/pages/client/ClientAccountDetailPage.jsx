@@ -32,7 +32,7 @@ export default function ClientAccountDetailPage() {
   const { id } = useParams()
   const navigate = useNavigate()
   const { clientUser } = useClientAuth()
-  const { accounts, loading } = useClientAccounts()
+  const { accounts, loading, renameAccount } = useClientAccounts()
   const { addSuccess } = useApiError()
 
   const account = accounts.find((a) => a.id === Number(id))
@@ -63,12 +63,17 @@ export default function ClientAccountDetailPage() {
 
   const reserved = account.balance - account.availableBalance
 
-  function saveName() {
-    if (nameInput.trim()) {
-      setAccountName(nameInput.trim())
-      addSuccess('Account name updated successfully.', 'Saved')
+  async function saveName() {
+    const trimmed = nameInput.trim()
+    try {
+      if (trimmed && trimmed !== accountName) {
+        await renameAccount(account.id, trimmed)
+        setAccountName(trimmed)
+        addSuccess('Account name updated successfully.', 'Saved')
+      }
+    } finally {
+      setEditingName(false)
     }
-    setEditingName(false)
   }
 
   return (
