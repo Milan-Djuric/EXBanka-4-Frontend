@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useSearchParams, Link } from 'react-router-dom'
-import useWindowTitle from '../hooks/useWindowTitle'
-import { authService } from '../services/authService'
+import useWindowTitle from '../../hooks/useWindowTitle'
+import { authService } from '../../services/authService'
 
 const MIN_LENGTH = 8
 const MAX_LENGTH = 32
@@ -32,8 +32,8 @@ function validate(password, confirm) {
   return errors
 }
 
-export default function ResetPasswordPage() {
-  useWindowTitle('Reset Password | AnkaBanka')
+export default function SetPasswordPage() {
+  useWindowTitle('Create Password | AnkaBanka')
   const [searchParams] = useSearchParams()
   const token = searchParams.get('token')
 
@@ -65,7 +65,7 @@ export default function ResetPasswordPage() {
     setSubmitted(true)
     if (Object.keys(errors).length > 0) return
     try {
-      await authService.resetPassword(token, fields.password, fields.confirm)
+      await authService.activate(token, fields.password, fields.confirm)
       setDone(true)
     } catch (err) {
       const msg = err?.response?.data?.error
@@ -81,7 +81,7 @@ export default function ResetPasswordPage() {
         <h1 className="font-serif text-4xl font-light text-slate-900 dark:text-white mb-3">Link not found</h1>
         <div className="w-10 h-px bg-violet-500 dark:bg-violet-400 mx-auto mb-6" />
         <p className="text-slate-500 dark:text-slate-400 font-light mb-10">
-          This password reset link is invalid or has already been used.
+          This setup link is invalid or has already been used.
         </p>
         <Link to="/login" className="btn-primary">Go to Sign In</Link>
       </div>
@@ -98,10 +98,10 @@ export default function ResetPasswordPage() {
           </svg>
         </div>
         <p className="text-xs tracking-widest uppercase text-violet-600 dark:text-violet-400 mb-4">All Set</p>
-        <h1 className="font-serif text-4xl font-light text-slate-900 dark:text-white mb-3">Password Reset</h1>
+        <h1 className="font-serif text-4xl font-light text-slate-900 dark:text-white mb-3">Password Created</h1>
         <div className="w-10 h-px bg-violet-500 dark:bg-violet-400 mx-auto mb-6" />
         <p className="text-slate-500 dark:text-slate-400 font-light mb-10">
-          Your password has been updated. You can now sign in with your new password.
+          Your account is ready. You can now sign in with your username and new password.
         </p>
         <Link to="/login" className="btn-primary">Sign In</Link>
       </div>
@@ -122,11 +122,11 @@ export default function ResetPasswordPage() {
 
       <div className="w-full max-w-md">
         <div className="text-center mb-10">
-          <p className="text-xs tracking-widest uppercase text-violet-600 dark:text-violet-400 mb-4">Account Recovery</p>
-          <h1 className="font-serif text-4xl font-light text-slate-900 dark:text-white mb-2">Reset Password</h1>
+          <p className="text-xs tracking-widest uppercase text-violet-600 dark:text-violet-400 mb-4">Account Setup</p>
+          <h1 className="font-serif text-4xl font-light text-slate-900 dark:text-white mb-2">Create Password</h1>
           <div className="w-10 h-px bg-violet-500 dark:bg-violet-400 mx-auto mb-4" />
           <p className="text-slate-500 dark:text-slate-400 font-light text-sm">
-            Enter your new password below.
+            Set a password to activate your account.
           </p>
         </div>
 
@@ -196,7 +196,7 @@ export default function ResetPasswordPage() {
             )}
 
             <button type="submit" className="btn-primary w-full">
-              Reset Password
+              Create Password
             </button>
           </form>
         </div>

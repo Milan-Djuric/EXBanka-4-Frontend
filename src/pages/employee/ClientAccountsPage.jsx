@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
-import useWindowTitle from '../hooks/useWindowTitle'
-import { useAccounts } from '../context/AccountsContext'
+import useWindowTitle from '../../hooks/useWindowTitle'
+import { useAccounts } from '../../context/AccountsContext'
 
 export default function ClientAccountsPage() {
   useWindowTitle('Accounts | AnkaBanka')

@@ -1,7 +1,9 @@
 import { useState } from 'react'
 import { useSearchParams, Link } from 'react-router-dom'
-import useWindowTitle from '../hooks/useWindowTitle'
-import { authService } from '../services/authService'
+import useWindowTitle from '../../hooks/useWindowTitle'
+import axios from 'axios'
+
+const BASE_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:8081'
 
 const MIN_LENGTH = 8
 const MAX_LENGTH = 32
@@ -32,18 +34,18 @@ function validate(password, confirm) {
   return errors
 }
 
-export default function SetPasswordPage() {
-  useWindowTitle('Create Password | AnkaBanka')
+export default function ClientActivatePage() {
+  useWindowTitle('Activate Account | AnkaBanka')
   const [searchParams] = useSearchParams()
   const token = searchParams.get('token')
 
-  const [fields, setFields] = useState({ password: '', confirm: '' })
-  const [touched, setTouched] = useState({ password: false, confirm: false })
+  const [fields, setFields]       = useState({ password: '', confirm: '' })
+  const [touched, setTouched]     = useState({ password: false, confirm: false })
   const [submitted, setSubmitted] = useState(false)
-  const [done, setDone] = useState(false)
-  const [apiError, setApiError] = useState(null)
+  const [done, setDone]           = useState(false)
+  const [apiError, setApiError]   = useState(null)
   const [showPassword, setShowPassword] = useState(false)
-  const [showConfirm, setShowConfirm] = useState(false)
+  const [showConfirm,  setShowConfirm]  = useState(false)
 
   const errors = validate(fields.password, fields.confirm)
   const visibleErrors = {
@@ -65,7 +67,11 @@ export default function SetPasswordPage() {
     setSubmitted(true)
     if (Object.keys(errors).length > 0) return
     try {
-      await authService.activate(token, fields.password, fields.confirm)
+      await axios.post(`${BASE_URL}/client/activate`, {
+        token,
+        password:         fields.password,
+        confirm_password: fields.confirm,
+      })
       setDone(true)
     } catch (err) {
       const msg = err?.response?.data?.error
@@ -81,9 +87,9 @@ export default function SetPasswordPage() {
         <h1 className="font-serif text-4xl font-light text-slate-900 dark:text-white mb-3">Link not found</h1>
         <div className="w-10 h-px bg-violet-500 dark:bg-violet-400 mx-auto mb-6" />
         <p className="text-slate-500 dark:text-slate-400 font-light mb-10">
-          This setup link is invalid or has already been used.
+          This activation link is invalid or has already been used.
         </p>
-        <Link to="/login" className="btn-primary">Go to Sign In</Link>
+        <Link to="/client/login" className="btn-primary">Go to Client Login</Link>
       </div>
     )
   }
@@ -98,12 +104,12 @@ export default function SetPasswordPage() {
           </svg>
         </div>
         <p className="text-xs tracking-widest uppercase text-violet-600 dark:text-violet-400 mb-4">All Set</p>
-        <h1 className="font-serif text-4xl font-light text-slate-900 dark:text-white mb-3">Password Created</h1>
+        <h1 className="font-serif text-4xl font-light text-slate-900 dark:text-white mb-3">Account Activated</h1>
         <div className="w-10 h-px bg-violet-500 dark:bg-violet-400 mx-auto mb-6" />
         <p className="text-slate-500 dark:text-slate-400 font-light mb-10">
-          Your account is ready. You can now sign in with your username and new password.
+          Your account is ready. You can now sign in with your email and new password.
         </p>
-        <Link to="/login" className="btn-primary">Sign In</Link>
+        <Link to="/client/login" className="btn-primary">Sign In</Link>
       </div>
     )
   }
@@ -111,7 +117,7 @@ export default function SetPasswordPage() {
   /* Form */
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col items-center justify-center px-6 py-16">
-      <Link to="/" className="flex items-center gap-3 mb-14">
+      <Link to="/client" className="flex items-center gap-3 mb-14">
         <div className="w-7 h-7 border border-violet-500 dark:border-violet-400 flex items-center justify-center">
           <span className="text-violet-500 dark:text-violet-400 text-xs font-serif font-semibold">A</span>
         </div>
@@ -122,18 +128,17 @@ export default function SetPasswordPage() {
 
       <div className="w-full max-w-md">
         <div className="text-center mb-10">
-          <p className="text-xs tracking-widest uppercase text-violet-600 dark:text-violet-400 mb-4">Account Setup</p>
+          <p className="text-xs tracking-widest uppercase text-violet-600 dark:text-violet-400 mb-4">Account Activation</p>
           <h1 className="font-serif text-4xl font-light text-slate-900 dark:text-white mb-2">Create Password</h1>
           <div className="w-10 h-px bg-violet-500 dark:bg-violet-400 mx-auto mb-4" />
           <p className="text-slate-500 dark:text-slate-400 font-light text-sm">
-            Set a password to activate your account.
+            Set a password to activate your banking account.
           </p>
         </div>
 
         <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-8 shadow-sm">
           <form onSubmit={handleSubmit} noValidate className="space-y-6">
 
-            {/* Password */}
             <div>
               <label htmlFor="password" className="block text-xs tracking-widest uppercase text-slate-600 dark:text-slate-400 mb-2">
                 New Password
@@ -162,7 +167,6 @@ export default function SetPasswordPage() {
               {visibleErrors.password && <p className="mt-2 text-xs text-red-500">{visibleErrors.password}</p>}
             </div>
 
-            {/* Confirm */}
             <div>
               <label htmlFor="confirm" className="block text-xs tracking-widest uppercase text-slate-600 dark:text-slate-400 mb-2">
                 Confirm Password
@@ -191,12 +195,10 @@ export default function SetPasswordPage() {
               {visibleErrors.confirm && <p className="mt-2 text-xs text-red-500">{visibleErrors.confirm}</p>}
             </div>
 
-            {apiError && (
-              <p className="text-xs text-red-500">{apiError}</p>
-            )}
+            {apiError && <p className="text-xs text-red-500">{apiError}</p>}
 
             <button type="submit" className="btn-primary w-full">
-              Create Password
+              Activate Account
             </button>
           </form>
         </div>

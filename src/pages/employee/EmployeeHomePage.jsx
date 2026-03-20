@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import useWindowTitle from '../hooks/useWindowTitle'
-import { useTheme } from '../context/ThemeContext'
-import { useAuth } from '../context/AuthContext'
+import useWindowTitle from '../../hooks/useWindowTitle'
+import { useTheme } from '../../context/ThemeContext'
+import { useAuth } from '../../context/AuthContext'
 
 const PERMISSION_META = {
   isAdmin: {
@@ -82,7 +82,7 @@ const ACCENT = {
   violet: 'border-violet-200 dark:border-violet-700 bg-violet-50 dark:bg-violet-900/20 text-violet-700 dark:text-violet-400',
 }
 
-function HomePage() {
+function EmployeeHomePage() {
   useWindowTitle('AnkaBanka — Employee Portal')
   const { dark } = useTheme()
   const { user } = useAuth()
@@ -209,4 +209,4 @@ function HomePage() {
   )
 }
 
-export default HomePage
+export default EmployeeHomePage

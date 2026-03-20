@@ -1,36 +1,44 @@
-import { mockBankAccounts } from '../mocks/bankAccounts'
-import { BankAccount } from '../models/BankAccount'
-
-// In-memory store. Replace function bodies with real API calls when backend is ready.
-let _accounts = mockBankAccounts.map((a) => new BankAccount(a))
-
-let _nextId = mockBankAccounts.length + 1
-
-function generateAccountNumber() {
-  const padded = String(_nextId).padStart(10, '0')
-  const check  = String(_nextId % 100).padStart(2, '0')
-  return `105-${padded}-${check}`
-}
+import { apiClient } from './apiClient'
+import { bankAccountFromApi } from '../models/BankAccount'
 
 export const accountService = {
   async getAccounts() {
-    return [..._accounts]
+    const { data } = await apiClient.get('/api/accounts')
+    return data.map((a) => bankAccountFromApi({
+      id:               a.id,
+      accountNumber:    a.accountNumber,
+      accountName:      a.accountName,
+      ownerId:          a.ownerId,
+      ownerFirstName:   a.ownerFirstName,
+      ownerLastName:    a.ownerLastName,
+      accountType:      a.accountType,
+      currencyCode:     a.currencyCode,
+      availableBalance: a.availableBalance,
+    }))
   },
 
-  async createAccount({ ownerId, ownerFirstName, ownerLastName, type, currencyType, currency, createdByEmployeeId }) {
-    const account = new BankAccount({
-      id: _nextId,
-      accountNumber: generateAccountNumber(),
-      ownerId,
-      ownerFirstName,
-      ownerLastName,
-      type,
-      currencyType,
-      currency,
-      createdByEmployeeId,
+  async getAccountById(id) {
+    const { data } = await apiClient.get(`/api/accounts/${id}`)
+    return bankAccountFromApi({ id, ...data })
+  },
+
+  async createAccount({ ownerId, ownerFirstName, ownerLastName, type, subtype, accountName, currencyType, currency }) {
+    let accountType
+    if (currencyType === 'foreign') {
+      accountType = 'FOREIGN_CURRENCY'
+    } else if (type === 'business') {
+      accountType = 'BUSINESS'
+    } else if (subtype === 'savings') {
+      accountType = 'SAVINGS'
+    } else {
+      accountType = 'CURRENT'
+    }
+    const { data } = await apiClient.post('/api/accounts/create', {
+      clientId:     ownerId,
+      accountType,
+      accountName,
+      currencyCode: currency,
     })
-    _nextId++
-    _accounts = [..._accounts, account]
-    return account
+    return bankAccountFromApi({ ownerFirstName, ownerLastName, ...data })
   },
 }

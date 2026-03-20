@@ -1,8 +1,8 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import useWindowTitle from '../hooks/useWindowTitle'
-import { useEmployees } from '../context/EmployeesContext'
-import { DEFAULT_PERMISSIONS } from '../models/Employee'
+import useWindowTitle from '../../hooks/useWindowTitle'
+import { useEmployees } from '../../context/EmployeesContext'
+import { DEFAULT_PERMISSIONS } from '../../models/Employee'
 
 const EMPTY_FORM = {
   firstName:   '',
@@ -35,12 +35,20 @@ export default function NewEmployeePage() {
     if (errors[name]) setErrors((prev) => ({ ...prev, [name]: false }))
   }
 
+  function handleBlur(e) {
+    const { name } = e.target
+    const errs = validate()
+    if (errs[name]) setErrors((prev) => ({ ...prev, [name]: errs[name] }))
+  }
+
   function validate() {
     const next = {}
     REQUIRED.forEach((field) => {
       if (!form[field].trim()) next[field] = true
     })
     if (!/^\d{13}$/.test(form.jmbg)) next.jmbg = true
+    if (!next.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) next.email = true
+    if (form.dateOfBirth && new Date(form.dateOfBirth) >= new Date()) next.dateOfBirth = true
     return next
   }
 
@@ -89,13 +97,13 @@ export default function NewEmployeePage() {
             <FormSection title="Personal">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <Field label="First Name *" error={errors.firstName}>
-                  <input className={`input-field${errors.firstName ? ' input-error' : ''}`} name="firstName" value={form.firstName} onChange={handleChange} placeholder="First name" />
+                  <input className={`input-field${errors.firstName ? ' input-error' : ''}`} name="firstName" value={form.firstName} onChange={handleChange} onBlur={handleBlur} placeholder="First name" />
                 </Field>
                 <Field label="Last Name *" error={errors.lastName}>
-                  <input className={`input-field${errors.lastName ? ' input-error' : ''}`} name="lastName" value={form.lastName} onChange={handleChange} placeholder="Last name" />
+                  <input className={`input-field${errors.lastName ? ' input-error' : ''}`} name="lastName" value={form.lastName} onChange={handleChange} onBlur={handleBlur} placeholder="Last name" />
                 </Field>
-                <Field label="Date of Birth">
-                  <input className="input-field" type="date" name="dateOfBirth" value={form.dateOfBirth} onChange={handleChange} />
+                <Field label="Date of Birth" error={errors.dateOfBirth} errorMsg="Date of birth cannot be in the future.">
+                  <input className={`input-field${errors.dateOfBirth ? ' input-error' : ''}`} type="date" name="dateOfBirth" value={form.dateOfBirth} onChange={handleChange} onBlur={handleBlur} />
                 </Field>
                 <Field label="Gender">
                   <select className="input-field" name="gender" value={form.gender} onChange={handleChange}>
@@ -106,7 +114,7 @@ export default function NewEmployeePage() {
                   </select>
                 </Field>
                 <Field label="JMBG *" error={errors.jmbg} errorMsg="Must be exactly 13 digits.">
-                  <input className={`input-field${errors.jmbg ? ' input-error' : ''}`} name="jmbg" value={form.jmbg} onChange={handleChange} placeholder="13-digit personal ID" maxLength={13} />
+                  <input className={`input-field${errors.jmbg ? ' input-error' : ''}`} name="jmbg" value={form.jmbg} onChange={handleChange} onBlur={handleBlur} placeholder="13-digit personal ID" maxLength={13} />
                 </Field>
               </div>
             </FormSection>
@@ -114,8 +122,8 @@ export default function NewEmployeePage() {
             {/* Contact */}
             <FormSection title="Contact">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <Field label="Email *" error={errors.email}>
-                  <input className={`input-field${errors.email ? ' input-error' : ''}`} type="email" name="email" value={form.email} onChange={handleChange} placeholder="email@ankabanka.com" />
+                <Field label="Email *" error={errors.email} errorMsg="Wrong email format.">
+                  <input className={`input-field${errors.email ? ' input-error' : ''}`} type="email" name="email" value={form.email} onChange={handleChange} onBlur={handleBlur} placeholder="email@ankabanka.com" />
                 </Field>
                 <Field label="Phone">
                   <input className="input-field" name="phoneNumber" value={form.phoneNumber} onChange={handleChange} placeholder="+381..." />
@@ -130,13 +138,13 @@ export default function NewEmployeePage() {
             <FormSection title="Employment">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <Field label="Username *" error={errors.username}>
-                  <input className={`input-field${errors.username ? ' input-error' : ''}`} name="username" value={form.username} onChange={handleChange} placeholder="firstname.lastname" />
+                  <input className={`input-field${errors.username ? ' input-error' : ''}`} name="username" value={form.username} onChange={handleChange} onBlur={handleBlur} placeholder="firstname.lastname" />
                 </Field>
                 <Field label="Position *" error={errors.position}>
-                  <input className={`input-field${errors.position ? ' input-error' : ''}`} name="position" value={form.position} onChange={handleChange} placeholder="e.g. Teller" />
+                  <input className={`input-field${errors.position ? ' input-error' : ''}`} name="position" value={form.position} onChange={handleChange} onBlur={handleBlur} placeholder="e.g. Teller" />
                 </Field>
                 <Field label="Department *" error={errors.department}>
-                  <input className={`input-field${errors.department ? ' input-error' : ''}`} name="department" value={form.department} onChange={handleChange} placeholder="e.g. Retail Banking" />
+                  <input className={`input-field${errors.department ? ' input-error' : ''}`} name="department" value={form.department} onChange={handleChange} onBlur={handleBlur} placeholder="e.g. Retail Banking" />
                 </Field>
               </div>
             </FormSection>

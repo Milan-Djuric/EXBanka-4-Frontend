@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import useWindowTitle from '../hooks/useWindowTitle'
-import { authService } from '../services/authService'
+import useWindowTitle from '../../hooks/useWindowTitle'
+import { authService } from '../../services/authService'
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 

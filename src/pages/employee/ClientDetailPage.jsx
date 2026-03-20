@@ -1,23 +1,27 @@
 import { useState, useEffect } from 'react'
 import { useParams, Link } from 'react-router-dom'
-import useWindowTitle from '../hooks/useWindowTitle'
-import { useClients } from '../context/ClientsContext'
+import useWindowTitle from '../../hooks/useWindowTitle'
+import { useClients } from '../../context/ClientsContext'
+import { useAccounts } from '../../context/AccountsContext'
 
 export default function ClientDetailPage() {
   const { id } = useParams()
   const { clients, loading, reload, updateClient } = useClients()
+  const { accounts, reload: reloadAccounts } = useAccounts()
 
   useEffect(() => {
     if (clients.length === 0 && !loading) reload()
+    if (accounts.length === 0) reloadAccounts()
   }, [])
 
   const client = clients.find((c) => c.id === Number(id))
+  const clientAccounts = accounts.filter((a) => a.ownerId === Number(id))
 
   useWindowTitle(client ? `${client.fullName} | AnkaBanka` : 'Client | AnkaBanka')
 
   const [editing, setEditing] = useState(false)
   const [form, setForm] = useState({})
-  const [emailError, setEmailError] = useState('')
+  const [fieldErrors, setFieldErrors] = useState({})
 
   if (!client) {
     return (
@@ -41,25 +45,45 @@ export default function ClientDetailPage() {
       username:    client.username,
       active:      client.active,
     })
-    setEmailError('')
+    setFieldErrors({})
     setEditing(true)
+  }
+
+  const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+
+  function validate() {
+    const errs = {}
+    if (!form.firstName?.trim())  errs.firstName  = 'This field is required.'
+    if (!form.lastName?.trim())   errs.lastName   = 'This field is required.'
+    if (!form.email?.trim())      errs.email      = 'This field is required.'
+    else if (!EMAIL_RE.test(form.email)) errs.email = 'Wrong email format.'
+    else {
+      const duplicate = clients.find(
+        (c) => c.id !== client.id && c.email.toLowerCase() === form.email.trim().toLowerCase()
+      )
+      if (duplicate) errs.email = 'This email is already in use.'
+    }
+    if (!form.username?.trim())   errs.username   = 'This field is required.'
+    if (form.dateOfBirth && new Date(form.dateOfBirth) >= new Date()) errs.dateOfBirth = 'Date of birth cannot be in the future.'
+    return errs
   }
 
   function handleChange(e) {
     const { name, value, type, checked } = e.target
     setForm((prev) => ({ ...prev, [name]: type === 'checkbox' ? checked : value }))
-    if (name === 'email') setEmailError('')
+    if (fieldErrors[name]) setFieldErrors((prev) => ({ ...prev, [name]: '' }))
+  }
+
+  function handleBlur(e) {
+    const { name } = e.target
+    const errs = validate()
+    if (errs[name]) setFieldErrors((prev) => ({ ...prev, [name]: errs[name] }))
   }
 
   async function handleSave() {
-    const duplicate = clients.find(
-      (c) => c.id !== client.id && c.email.toLowerCase() === form.email.trim().toLowerCase()
-    )
-    if (duplicate) {
-      setEmailError('This email is already in use.')
-      return
-    }
-    setEmailError('')
+    const errs = validate()
+    if (Object.keys(errs).length) { setFieldErrors(errs); return }
+    setFieldErrors({})
     try {
       await updateClient(client.id, form)
       setEditing(false)
@@ -107,22 +131,22 @@ export default function ClientDetailPage() {
           {editing ? (
             <>
               <Section title="Personal">
-                <EditRow label="First Name"    name="firstName"   value={form.firstName}   onChange={handleChange} />
-                <EditRow label="Last Name"     name="lastName"    value={form.lastName}    onChange={handleChange} />
-                <EditRow label="Date of Birth" name="dateOfBirth" value={form.dateOfBirth} onChange={handleChange} type="date" />
+                <EditRow label="First Name"    name="firstName"   value={form.firstName}   onChange={handleChange} onBlur={handleBlur} error={fieldErrors.firstName} />
+                <EditRow label="Last Name"     name="lastName"    value={form.lastName}    onChange={handleChange} onBlur={handleBlur} error={fieldErrors.lastName} />
+                <EditRow label="Date of Birth" name="dateOfBirth" value={form.dateOfBirth} onChange={handleChange} onBlur={handleBlur} type="date" error={fieldErrors.dateOfBirth} />
                 <SelectRow label="Gender" name="gender" value={form.gender} onChange={handleChange} options={['Male', 'Female', 'Other']} />
                 {/* JMBG is never editable */}
                 <Row label="JMBG" value={client.jmbg} />
               </Section>
 
               <Section title="Contact">
-                <EditRow label="Email"   name="email"       value={form.email}       onChange={handleChange} type="email" error={emailError} />
-                <EditRow label="Phone"   name="phoneNumber" value={form.phoneNumber} onChange={handleChange} />
-                <EditRow label="Address" name="address"     value={form.address}     onChange={handleChange} />
+                <EditRow label="Email"   name="email"       value={form.email}       onChange={handleChange} onBlur={handleBlur} type="email" error={fieldErrors.email} />
+                <EditRow label="Phone"   name="phoneNumber" value={form.phoneNumber} onChange={handleChange} onBlur={handleBlur} />
+                <EditRow label="Address" name="address"     value={form.address}     onChange={handleChange} onBlur={handleBlur} />
               </Section>
 
               <Section title="Account">
-                <EditRow label="Username" name="username" value={form.username} onChange={handleChange} />
+                <EditRow label="Username" name="username" value={form.username} onChange={handleChange} onBlur={handleBlur} error={fieldErrors.username} />
                 <div className="flex items-center justify-between py-3 border-b border-slate-100 dark:border-slate-800 last:border-0">
                   <span className="text-xs tracking-widest uppercase text-slate-500 dark:text-slate-400">Active</span>
                   <input
@@ -136,11 +160,11 @@ export default function ClientDetailPage() {
               </Section>
 
               <Section title="Bank Accounts">
-                {client.bankAccounts.length === 0 ? (
+                {clientAccounts.length === 0 ? (
                   <p className="text-sm text-slate-400 dark:text-slate-500 py-3">No accounts linked.</p>
                 ) : (
-                  client.bankAccounts.map((acc) => (
-                    <Row key={acc} label="Account" value={acc} />
+                  clientAccounts.map((acc) => (
+                    <Row key={acc.id} label={acc.accountName ?? acc.accountNumber} value={acc.accountNumber} />
                   ))
                 )}
               </Section>
@@ -182,11 +206,11 @@ export default function ClientDetailPage() {
               </Section>
 
               <Section title="Bank Accounts">
-                {client.bankAccounts.length === 0 ? (
+                {clientAccounts.length === 0 ? (
                   <p className="text-sm text-slate-400 dark:text-slate-500 py-3">No accounts linked.</p>
                 ) : (
-                  client.bankAccounts.map((acc) => (
-                    <Row key={acc} label="Account" value={acc} />
+                  clientAccounts.map((acc) => (
+                    <Row key={acc.id} label={acc.accountName ?? acc.accountNumber} value={acc.accountNumber} />
                   ))
                 )}
               </Section>
@@ -225,7 +249,7 @@ function Row({ label, value }) {
   )
 }
 
-function EditRow({ label, name, value, onChange, type = 'text', error }) {
+function EditRow({ label, name, value, onChange, onBlur, type = 'text', error }) {
   return (
     <div className="py-2 border-b border-slate-100 dark:border-slate-800 last:border-0">
       <div className="flex items-center justify-between gap-4">
@@ -235,6 +259,7 @@ function EditRow({ label, name, value, onChange, type = 'text', error }) {
           name={name}
           value={value}
           onChange={onChange}
+          onBlur={onBlur}
           className="text-sm text-right bg-transparent border-b border-violet-300 dark:border-violet-600 text-slate-900 dark:text-white focus:outline-none focus:border-violet-500 w-full max-w-xs"
         />
       </div>
