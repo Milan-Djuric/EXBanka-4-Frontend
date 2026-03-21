@@ -200,8 +200,8 @@ export default function ClientTransfersPage() {
           </div>
 
           {/* Amount */}
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-6">
-            <p className="text-xs tracking-widest uppercase text-violet-600 dark:text-violet-400 mb-5">Amount</p>
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-6 space-y-4">
+            <p className="text-xs tracking-widest uppercase text-violet-600 dark:text-violet-400">Amount</p>
             <Field label="Amount *" error={errors.amount}>
               <div className="relative">
                 <input
@@ -219,6 +219,23 @@ export default function ClientTransfersPage() {
                 </span>
               </div>
             </Field>
+
+            {/* Cross-currency commission notice */}
+            {fromAccount && toAccount && fromAccount.currency !== toAccount.currency && (
+              <div className="flex items-start gap-2 py-3 px-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700/50 rounded-lg">
+                <svg className="w-4 h-4 text-amber-500 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
+                </svg>
+                <p className="text-xs text-amber-700 dark:text-amber-300 font-light">
+                  Currency conversion applies ({fromAccount.currency} → {toAccount.currency}).
+                  A <span className="font-medium">0.5% commission</span> will be charged
+                  {parseFloat(form.amount) > 0
+                    ? <> — approximately <span className="font-medium">{fmt(Math.round(parseFloat(form.amount) * 0.005 * 100) / 100, fromAccount.currency)}</span></>
+                    : null
+                  }.
+                </p>
+              </div>
+            )}
           </div>
 
           <div className="flex gap-3">
