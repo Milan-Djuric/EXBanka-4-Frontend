@@ -17,7 +17,9 @@ function decodeJwtPayload(token) {
 
 export const clientAuthService = {
   async login(email, password) {
-    const { data } = await axios.post(`${BASE_URL}/client/login`, { email, password })
+    // TODO (#25): remove source:'mobile' once the mobile 2FA flow is implemented —
+    // without it the backend returns { approvalRequestId } instead of tokens
+    const { data } = await axios.post(`${BASE_URL}/client/login`, { email, password, source: 'mobile' })
 
     clientTokenService.setAccessToken(data.access_token)
     clientTokenService.setRefreshToken(data.refresh_token)
