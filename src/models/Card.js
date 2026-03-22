@@ -6,6 +6,7 @@
 
 export class Card {
   constructor({
+    id,
     cardNumber,
     cardType,
     cardName,
@@ -16,6 +17,7 @@ export class Card {
     status,
     authorizedPersonId,
   }) {
+    this.id                 = id
     this.cardNumber         = cardNumber
     this.cardType           = cardType          ?? 'DEBIT'
     this.cardName           = cardName          ?? null   // brand: VISA, MASTERCARD, etc.
@@ -34,6 +36,7 @@ export class Card {
 
 export function cardFromApi(data) {
   return new Card({
+    id:                 data.id,
     cardNumber:         data.cardNumber,
     cardType:           data.cardType,
     cardName:           data.cardName,

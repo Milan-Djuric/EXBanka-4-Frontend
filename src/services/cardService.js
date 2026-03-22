@@ -10,23 +10,25 @@ export const cardService = {
     return data.map(cardFromApi)
   },
 
-  async requestCard({ accountNumber, authorizedPerson }) {
+  async requestCard({ accountNumber, cardName, forSelf, authorizedPerson }) {
     const { data } = await clientApiClient.post('/api/cards/request', {
       accountNumber,
+      cardName,
+      forSelf,
       ...(authorizedPerson && { authorizedPerson }),
     })
-    return data // { requestId }
+    return data // { requestToken }
   },
 
-  async confirmCardRequest(requestId, confirmationCode) {
+  async confirmCardRequest(requestToken, code) {
     await clientApiClient.post('/api/cards/request/confirm', {
-      requestId,
-      confirmationCode,
+      requestToken,
+      code,
     })
   },
 
-  async blockCard(cardNumber) {
-    await clientApiClient.put(`/api/cards/${cardNumber}/block`)
+  async blockCard(cardId) {
+    await clientApiClient.put(`/api/cards/${cardId}/block`)
   },
 }
 
@@ -34,23 +36,23 @@ export const cardService = {
 
 export const employeeCardService = {
   async getCardsByAccount(accountNumber) {
-    const { data } = await apiClient.get(`/api/cards?accountNumber=${accountNumber}`)
+    const { data } = await apiClient.get(`/api/cards/by-account/${accountNumber}`)
     return data.map(cardFromApi)
   },
 
-  async blockCard(cardNumber) {
-    await apiClient.put(`/api/cards/${cardNumber}/block`)
+  async blockCard(cardId) {
+    await apiClient.put(`/api/cards/${cardId}/block`)
   },
 
-  async unblockCard(cardNumber) {
-    await apiClient.put(`/api/cards/${cardNumber}/unblock`)
+  async unblockCard(cardId) {
+    await apiClient.put(`/api/cards/${cardId}/unblock`)
   },
 
-  async deactivateCard(cardNumber) {
-    await apiClient.put(`/api/cards/${cardNumber}/deactivate`)
+  async deactivateCard(cardId) {
+    await apiClient.put(`/api/cards/${cardId}/deactivate`)
   },
 
-  async updateCardLimit(cardNumber, limit) {
-    await apiClient.put(`/api/cards/${cardNumber}/limit`, { limit })
+  async updateCardLimit(cardId, limit) {
+    await apiClient.put(`/api/cards/${cardId}/limit`, { newLimit: limit })
   },
 }
