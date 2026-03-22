@@ -31,6 +31,7 @@ export default function ClientCardRequestPage() {
   const { accounts } = useClientAccounts()
 
   const [accountNumber, setAccountNumber] = useState('')
+  const [cardName, setCardName]           = useState('')
   const [forSelf, setForSelf]             = useState(true)
   const [authorized, setAuthorized]       = useState(EMPTY_AUTHORIZED)
   const [errors, setErrors]               = useState({})
@@ -48,6 +49,7 @@ export default function ClientCardRequestPage() {
   function validate() {
     const errs = {}
     if (!accountNumber) errs.accountNumber = 'Please select an account.'
+    if (!cardName) errs.cardName = 'Please select a card brand.'
     if (isBusiness && !forSelf) {
       if (!authorized.firstName)   errs.firstName   = 'Required.'
       if (!authorized.lastName)    errs.lastName    = 'Required.'
@@ -67,11 +69,15 @@ export default function ClientCardRequestPage() {
 
     setSubmitting(true)
     try {
-      const payload = { accountNumber }
-      if (isBusiness && !forSelf) payload.authorizedPerson = authorized
+      const payload = {
+        accountNumber,
+        cardName,
+        forSelf: isBusiness ? forSelf : true,
+        ...(isBusiness && !forSelf && { authorizedPerson: authorized }),
+      }
 
       const result = await cardService.requestCard(payload)
-      navigate('/client/cards/confirm', { state: { requestId: result.requestId, accountNumber } })
+      navigate('/client/cards/confirm', { state: { requestToken: result.requestToken, accountNumber } })
     } finally {
       setSubmitting(false)
     }
@@ -96,6 +102,21 @@ export default function ClientCardRequestPage() {
         <div className="w-8 h-px bg-violet-500 dark:bg-violet-400 mb-8" />
 
         <form onSubmit={handleSubmit} className="space-y-5">
+
+          {/* Card brand selector */}
+          <Field label="Card Brand *" error={errors.cardName}>
+            <select
+              value={cardName}
+              onChange={(e) => { setCardName(e.target.value); setErrors((p) => ({ ...p, cardName: undefined })) }}
+              className={`input-field ${errors.cardName ? 'input-error' : ''}`}
+            >
+              <option value="">Select a brand</option>
+              <option value="VISA">Visa</option>
+              <option value="MASTERCARD">Mastercard</option>
+              <option value="DINACARD">DinaCard</option>
+              <option value="AMERICAN_EXPRESS">American Express</option>
+            </select>
+          </Field>
 
           {/* Account selector */}
           <Field label="Account *" error={errors.accountNumber}>

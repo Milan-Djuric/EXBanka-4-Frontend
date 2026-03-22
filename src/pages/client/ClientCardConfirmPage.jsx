@@ -11,14 +11,14 @@ export default function ClientCardConfirmPage() {
   const location  = useLocation()
   const { addSuccess } = useApiError()
 
-  const { requestId, accountNumber } = location.state ?? {}
+  const { requestToken, accountNumber } = location.state ?? {}
 
   const [code, setCode]           = useState('')
   const [error, setError]         = useState(null)
   const [submitting, setSubmitting] = useState(false)
 
   // Guard: if navigated here without state, send back
-  if (!requestId) {
+  if (!requestToken) {
     navigate('/client/cards')
     return null
   }
@@ -30,7 +30,7 @@ export default function ClientCardConfirmPage() {
     setSubmitting(true)
     setError(null)
     try {
-      await cardService.confirmCardRequest(requestId, code.trim())
+      await cardService.confirmCardRequest(requestToken, code.trim())
       addSuccess('Your card has been created successfully.', 'Card Created')
       navigate('/client/cards')
     } catch {

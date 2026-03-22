@@ -70,7 +70,7 @@ function CardRow({ card, onBlock }) {
   async function handleBlock() {
     setBlocking(true)
     try {
-      await cardService.blockCard(card.cardNumber)
+      await cardService.blockCard(card.id)
       onBlock({ ...card, status: 'BLOCKED' })
     } finally {
       setBlocking(false)

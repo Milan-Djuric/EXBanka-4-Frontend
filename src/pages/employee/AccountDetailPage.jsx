@@ -344,21 +344,21 @@ function EmployeeCardRow({ card, onUpdate, addSuccess }) {
 
   async function handleBlock() {
     await doAction(async () => {
-      await employeeCardService.blockCard(card.cardNumber)
+      await employeeCardService.blockCard(card.id)
       onUpdate({ ...card, status: 'BLOCKED' })
     }, 'blocked')
   }
 
   async function handleUnblock() {
     await doAction(async () => {
-      await employeeCardService.unblockCard(card.cardNumber)
+      await employeeCardService.unblockCard(card.id)
       onUpdate({ ...card, status: 'ACTIVE' })
     }, 'unblocked')
   }
 
   async function handleDeactivate() {
     await doAction(async () => {
-      await employeeCardService.deactivateCard(card.cardNumber)
+      await employeeCardService.deactivateCard(card.id)
       onUpdate({ ...card, status: 'DEACTIVATED' })
     }, 'deactivated')
   }
@@ -372,7 +372,7 @@ function EmployeeCardRow({ card, onUpdate, addSuccess }) {
     setLimitBusy(true)
     setLimitError(null)
     try {
-      await employeeCardService.updateCardLimit(card.cardNumber, value)
+      await employeeCardService.updateCardLimit(card.id, value)
       onUpdate({ ...card, cardLimit: value })
       setEditingLimit(false)
       addSuccess(`Card limit updated to ${value}.`)
