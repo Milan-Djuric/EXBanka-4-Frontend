@@ -123,7 +123,7 @@ function BlockAction({ card, onBlock }) {
     setBlocking(true)
     try {
       await cardService.blockCard(card.id)
-      onBlock({ ...card, status: 'BLOCKED' })
+      onBlock({ ...card, status: 'BLOCKED', isBlocked: true, isActive: false })
     } finally {
       setBlocking(false)
       setShowConfirm(false)

@@ -5,6 +5,7 @@ import { useAccounts } from '../../context/AccountsContext'
 import { accountService } from '../../services/accountService'
 import { employeeCardService } from '../../services/cardService'
 import { BankAccount, formatAccountType } from '../../models/BankAccount'
+import { Card as CardModel } from '../../models/Card'
 import { fmt } from '../../utils/formatting'
 import Spinner from '../../components/Spinner'
 import CardBrand from '../../components/CardBrand'
@@ -367,21 +368,21 @@ function EmployeeCardRow({ card, currency = 'RSD', onUpdate, addSuccess, onClick
   async function handleBlock() {
     await doAction(async () => {
       await employeeCardService.blockCard(card.id)
-      onUpdate({ ...card, status: 'BLOCKED' })
+      onUpdate(new CardModel({ ...card, status: 'BLOCKED' }))
     }, 'blocked')
   }
 
   async function handleUnblock() {
     await doAction(async () => {
       await employeeCardService.unblockCard(card.id)
-      onUpdate({ ...card, status: 'ACTIVE' })
+      onUpdate(new CardModel({ ...card, status: 'ACTIVE' }))
     }, 'unblocked')
   }
 
   async function handleDeactivate() {
     await doAction(async () => {
       await employeeCardService.deactivateCard(card.id)
-      onUpdate({ ...card, status: 'DEACTIVATED' })
+      onUpdate(new CardModel({ ...card, status: 'DEACTIVATED' }))
     }, 'deactivated')
   }
 
@@ -395,7 +396,7 @@ function EmployeeCardRow({ card, currency = 'RSD', onUpdate, addSuccess, onClick
     setLimitError(null)
     try {
       await employeeCardService.updateCardLimit(card.id, value)
-      onUpdate({ ...card, cardLimit: value })
+      onUpdate(new CardModel({ ...card, cardLimit: value }))
       setEditingLimit(false)
       addSuccess(`Card limit updated to ${value}.`)
     } finally {
@@ -524,21 +525,21 @@ function EmployeeCardActions({ card, currency = 'RSD', onUpdate, addSuccess }) {
   async function handleBlock() {
     await doAction(async () => {
       await employeeCardService.blockCard(card.id)
-      onUpdate({ ...card, status: 'BLOCKED' })
+      onUpdate(new CardModel({ ...card, status: 'BLOCKED' }))
     }, 'blocked')
   }
 
   async function handleUnblock() {
     await doAction(async () => {
       await employeeCardService.unblockCard(card.id)
-      onUpdate({ ...card, status: 'ACTIVE' })
+      onUpdate(new CardModel({ ...card, status: 'ACTIVE' }))
     }, 'unblocked')
   }
 
   async function handleDeactivate() {
     await doAction(async () => {
       await employeeCardService.deactivateCard(card.id)
-      onUpdate({ ...card, status: 'DEACTIVATED' })
+      onUpdate(new CardModel({ ...card, status: 'DEACTIVATED' }))
     }, 'deactivated')
   }
 
@@ -548,7 +549,7 @@ function EmployeeCardActions({ card, currency = 'RSD', onUpdate, addSuccess }) {
     setLimitBusy(true); setLimitError(null)
     try {
       await employeeCardService.updateCardLimit(card.id, value)
-      onUpdate({ ...card, cardLimit: value })
+      onUpdate(new CardModel({ ...card, cardLimit: value }))
       addSuccess(`Card limit updated to ${value}.`)
     } finally {
       setLimitBusy(false)
