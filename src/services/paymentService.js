@@ -8,7 +8,7 @@ function toPayment(p) {
     fromAccount:      p.fromAccount,
     recipient:        p.recipient,
     recipientAccount: p.toAccount,
-    amount:           p.finalAmount,
+    amount:           p.initialAmount,
     fee:              p.fee,
     currency:         p.currency,
     status:           p.status?.toLowerCase(),

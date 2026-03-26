@@ -49,6 +49,9 @@ function Navbar() {
               <NavLink to="/admin/accounts" className={linkClass}>Accounts</NavLink>
             )}
             {user && (
+              <NavLink to="/admin/bank-accounts" className={linkClass}>Bank Accounts</NavLink>
+            )}
+            {user && (
               <NavLink to="/admin/loans/applications" className={linkClass}>Loan Applications</NavLink>
             )}
             {user && (
@@ -118,6 +121,9 @@ function Navbar() {
             )}
             {user?.permissions?.canViewClients && (
               <NavLink to="/admin/accounts" className={linkClass} onClick={() => setMenuOpen(false)}>Accounts</NavLink>
+            )}
+            {user && (
+              <NavLink to="/admin/bank-accounts" className={linkClass} onClick={() => setMenuOpen(false)}>Bank Accounts</NavLink>
             )}
             {user && (
               <NavLink to="/admin/loans/applications" className={linkClass} onClick={() => setMenuOpen(false)}>Loan Applications</NavLink>

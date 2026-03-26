@@ -210,6 +210,27 @@ export default function ClientPaymentVerifyPage() {
           <p className="text-sm text-slate-500 dark:text-slate-400 font-light">
             {phase === 'creating' ? 'Sending request to mobile app…' : 'Waiting for approval on your mobile app…'}
           </p>
+          <button
+            disabled={phase === 'creating'}
+            onClick={async () => {
+              if (pollRef.current) clearInterval(pollRef.current)
+              try {
+                await paymentService.createPayment({
+                  fromAccount: fromAccount.accountNumber,
+                  recipientName, recipientAccount, amount, paymentCode, referenceNumber, purpose,
+                })
+                reloadPayments()
+                addSuccess(`Payment to ${recipientName} has been submitted.`, 'Payment Confirmed')
+                setPhase('approved')
+              } catch {
+                setPhase('error')
+                setErrorMsg('Payment failed.')
+              }
+            }}
+            className="text-xs tracking-widest uppercase text-slate-400 hover:text-violet-600 dark:hover:text-violet-400 transition-colors disabled:opacity-40"
+          >
+            Confirm without mobile app
+          </button>
         </div>
 
       </div>

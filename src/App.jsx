@@ -21,6 +21,7 @@ import ClientsPage from './pages/employee/ClientsPage'
 import ClientDetailPage from './pages/employee/ClientDetailPage'
 import NewClientPage from './pages/employee/NewClientPage'
 import ClientAccountsPage from './pages/employee/ClientAccountsPage'
+import BankAccountsPage from './pages/employee/BankAccountsPage'
 import AccountDetailPage from './pages/employee/AccountDetailPage'
 import NewAccountPage from './pages/employee/NewAccountPage'
 import ClientLoginPage from './pages/client/ClientLoginPage'
@@ -74,6 +75,7 @@ function App() {
               <Route path="/admin/accounts" element={<ClientAccountsPage />} />
               <Route path="/admin/accounts/new" element={<NewAccountPage />} />
               <Route path="/admin/accounts/:id" element={<AccountDetailPage />} />
+              <Route path="/admin/bank-accounts" element={<BankAccountsPage />} />
               <Route path="/admin/loans/applications" element={<EmployeeLoanApplicationsPage />} />
               <Route path="/admin/loans" element={<EmployeeLoansPage />} />
             </Route>
