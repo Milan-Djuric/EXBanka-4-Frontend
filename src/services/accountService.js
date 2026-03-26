@@ -41,4 +41,8 @@ export const accountService = {
   async updateAccountLimits(id, { dailyLimit, monthlyLimit }) {
     await apiClient.put(`/api/accounts/${id}/limits`, { dailyLimit, monthlyLimit })
   },
+
+  async deleteAccount(id) {
+    await apiClient.delete(`/api/accounts/${id}`)
+  },
 }

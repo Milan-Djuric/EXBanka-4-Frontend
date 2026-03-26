@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useParams, Link } from 'react-router-dom'
+import { useParams, Link, useNavigate } from 'react-router-dom'
 import useWindowTitle from '../../hooks/useWindowTitle'
 import { useAccounts } from '../../context/AccountsContext'
 import { accountService } from '../../services/accountService'
@@ -41,13 +41,16 @@ function Card({ title, children, action }) {
 
 export default function AccountDetailPage() {
   const { id } = useParams()
-  const { addSuccess } = useApiError()
+  const navigate = useNavigate()
+  const { addSuccess, addToast } = useApiError()
   const { accounts, loading: listLoading, reload } = useAccounts()
   const [detail, setDetail]             = useState(null)
   const [editingLimits, setEditingLimits] = useState(false)
   const [limitForm, setLimitForm]       = useState({ dailyLimit: '', monthlyLimit: '' })
   const [limitErrors, setLimitErrors]   = useState({})
   const [limitsLoading, setLimitsLoading] = useState(false)
+  const [confirmDelete, setConfirmDelete] = useState(false)
+  const [deleting, setDeleting]           = useState(false)
 
   const account = detail ?? accounts.find((a) => a.id === Number(id))
 
@@ -129,6 +132,21 @@ export default function AccountDetailPage() {
     setLimitForm({ dailyLimit: String(account.dailyLimit), monthlyLimit: String(account.monthlyLimit) })
     setLimitErrors({})
     setEditingLimits(true)
+  }
+
+  async function handleDelete() {
+    setDeleting(true)
+    try {
+      await accountService.deleteAccount(account.id)
+      reload()
+      addSuccess(`Account ${account.accountNumber} has been deleted.`, 'Account Deleted')
+      navigate('/admin/accounts')
+    } catch (err) {
+      addToast(err?.response?.data?.error || 'Failed to delete account.', 'error', 'Delete Failed')
+      setConfirmDelete(false)
+    } finally {
+      setDeleting(false)
+    }
   }
 
   return (
@@ -274,6 +292,35 @@ export default function AccountDetailPage() {
         {account.accountNumber && (
           <AccountCards accountNumber={account.accountNumber} currency={account.currency} />
         )}
+
+        {/* Delete account */}
+        <div className="pt-4 border-t border-slate-200 dark:border-slate-800 flex justify-end">
+          {confirmDelete ? (
+            <div className="flex items-center gap-4">
+              <p className="text-sm text-slate-600 dark:text-slate-300">Are you sure you want to delete this account? This action cannot be undone.</p>
+              <button
+                onClick={handleDelete}
+                disabled={deleting}
+                className="px-4 py-2 text-xs tracking-widest uppercase bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors disabled:opacity-50"
+              >
+                {deleting ? 'Deleting…' : 'Confirm Delete'}
+              </button>
+              <button
+                onClick={() => setConfirmDelete(false)}
+                className="text-xs tracking-widest uppercase text-slate-400 hover:text-slate-600 transition-colors"
+              >
+                Cancel
+              </button>
+            </div>
+          ) : (
+            <button
+              onClick={() => setConfirmDelete(true)}
+              className="px-4 py-2 text-xs tracking-widest uppercase bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors"
+            >
+              Delete Account
+            </button>
+          )}
+        </div>
 
       </div>
     </div>

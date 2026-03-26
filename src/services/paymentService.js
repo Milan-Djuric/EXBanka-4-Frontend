@@ -46,4 +46,26 @@ export const paymentService = {
     })
     return data
   },
+
+  async createPaymentApproval({ fromAccount, recipientName, recipientAccount, amount, paymentCode, referenceNumber, purpose }) {
+    const payload = JSON.stringify({
+      fromAccount:      fromAccount.replace(/-/g, ''),
+      recipientName,
+      recipientAccount: recipientAccount.replace(/-/g, ''),
+      amount,
+      paymentCode,
+      referenceNumber: referenceNumber || '',
+      purpose,
+    })
+    const { data } = await clientApiClient.post('/api/mobile/approvals', {
+      actionType: 'PAYMENT',
+      payload,
+    })
+    return data // { id, status, ... }
+  },
+
+  async pollApproval(id) {
+    const { data } = await clientApiClient.get(`/api/approvals/${id}/poll`)
+    return data // { status }
+  },
 }
