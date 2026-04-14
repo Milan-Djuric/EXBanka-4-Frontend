@@ -19,9 +19,21 @@ export const clientSecuritiesService = {
     }
   },
 
-  async getListingById(id) {
+  async getListing(id) {
     const { data } = await clientApiClient.get(`/securities/${id}`)
-    return listingFromApi(data.summary ?? data)
+    return {
+      listing:      listingFromApi(data.summary ?? data),
+      detail:       data.detail ?? null,
+      priceHistory: data.priceHistory ?? [],
+    }
+  },
+
+  async getListingHistory(id, from, to) {
+    const params = {}
+    if (from) params.from = from
+    if (to)   params.to   = to
+    const { data } = await clientApiClient.get(`/securities/${id}/history`, { params })
+    return data
   },
 
   async getStocks(opts = {}) {

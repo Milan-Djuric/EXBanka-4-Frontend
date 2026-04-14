@@ -116,7 +116,8 @@ export default function ClientSecuritiesPage() {
   async function handleRefreshRow(listing) {
     setRefreshingId(listing.id)
     try {
-      const updated = await clientSecuritiesService.getListingById(listing.id)
+      const result = await clientSecuritiesService.getListing(listing.id)
+      const updated = result.listing
       setListings(prev => prev.map(l => l.id === updated.id ? updated : l))
     } finally {
       setRefreshingId(null)
@@ -306,7 +307,14 @@ export default function ClientSecuritiesPage() {
                             i % 2 === 0 ? '' : 'bg-slate-50/50 dark:bg-slate-800/20'
                           }`}
                         >
-                          <td className="px-4 py-3 font-mono text-slate-900 dark:text-white font-medium">{l.ticker}</td>
+                          <td className="px-4 py-3 font-mono font-medium">
+                            <button
+                              onClick={() => navigate(`/client/securities/${l.id}`)}
+                              className="text-violet-600 dark:text-violet-400 hover:underline"
+                            >
+                              {l.ticker}
+                            </button>
+                          </td>
                           <td className="px-4 py-3 text-slate-700 dark:text-slate-300">{l.name}</td>
                           <td className="px-4 py-3 text-slate-700 dark:text-slate-300">{fmt(l.price)}</td>
                           <td className="px-4 py-3 text-slate-700 dark:text-slate-300">{fmt(l.volume)}</td>
