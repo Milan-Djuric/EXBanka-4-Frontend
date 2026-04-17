@@ -52,6 +52,7 @@ import CreateOrderPage from './pages/orders/CreateOrderPage'
 import OrderReviewPage from './pages/orders/OrderReviewPage'
 import SecuritiesPage from './pages/securities/SecuritiesPage'
 import ListingDetailPage from './pages/securities/ListingDetailPage'
+import StockOptionsPage from './pages/securities/StockOptionsPage'
 import ClientSecuritiesPage from './pages/client/ClientSecuritiesPage'
 import ClientListingDetailPage from './pages/client/ClientListingDetailPage'
 import NotFoundPage from './pages/NotFoundPage'
@@ -92,6 +93,7 @@ function App() {
               <Route path="/orders/new" element={<CreateOrderPage />} />
               <Route path="/securities" element={<SecuritiesPage />} />
               <Route path="/securities/:id" element={<ListingDetailPage />} />
+              <Route path="/securities/:id/options" element={<StockOptionsPage />} />
             </Route>
           </Route>
 
