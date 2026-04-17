@@ -78,17 +78,16 @@ describe('Autorizacija i permisije — scenarios 16–18', () => {
         cy.contains('Petar').should('be.visible')
         cy.contains('button', 'Edit').click()
 
-        // When: dodeli permisiju "View Clients" (Upravljanje klijentima)
-        cy.contains('View Clients')
-          .closest('label, div')
-          .find('input[type="checkbox"]')
-          .check()
+        // When: dodeli rolu "Clerk" (koja daje View Clients / READ permisiju)
+        cy.contains('label', 'Clerk')
+          .find('input[type="radio"]')
+          .check({ force: true })
 
         cy.contains('button', 'Save').click()
 
         // Then: sistem ažurira listu permisija
         cy.contains('button', 'Save').should('not.exist')
-        cy.contains('View Clients').should('be.visible')
+        cy.contains('Clerk').should('be.visible')
 
         // And: permisija je sačuvana u bazi (verifikacija via API)
         cy.request({
