@@ -27,7 +27,7 @@ jobs:
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
         with:
           repository: RAF-SI-2025/EXBanka-4-Backend
-          path: EXBanka-4-Backend
+          path: EXBanka-4-Frontend/EXBanka-4-Backend
 
       - name: Checkout Infrastructure repo
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
@@ -98,7 +98,7 @@ jobs:
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
         with:
           repository: RAF-SI-2025/EXBanka-4-Backend
-          path: EXBanka-4-Backend
+          path: EXBanka-4-Frontend/EXBanka-4-Backend
 
       - name: Checkout Infrastructure repo
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
