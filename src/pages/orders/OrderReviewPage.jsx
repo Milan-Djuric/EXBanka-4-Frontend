@@ -151,7 +151,7 @@ export default function OrderReviewPage() {
                     const pricePerUnit = order.price_per_unit ?? order.pricePerUnit
                     const contractSize = order.contract_size  ?? order.contractSize  ?? 1
                     const remaining    = order.remaining_portions ?? order.remainingPortions
-                    const ticker       = order.ticker ?? order.asset_id ?? order.assetId
+                    const ticker       = order.asset_ticker ?? order.ticker ?? order.asset_id ?? order.assetId
 
                     return (
                       <tr
