@@ -329,7 +329,7 @@ export default function ClientSecuritiesPage() {
                           <td className="px-4 py-3">
                             <div className="flex items-center gap-2 justify-end">
                               <button
-                                onClick={() => navigate(`/client/securities/${l.id}/order`)}
+                                onClick={() => navigate(`/client/orders/new?ticker=${encodeURIComponent(l.ticker)}&direction=BUY`)}
                                 className="btn-primary text-xs px-3 py-1"
                               >
                                 Buy
