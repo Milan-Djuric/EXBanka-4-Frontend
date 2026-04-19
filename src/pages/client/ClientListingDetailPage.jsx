@@ -115,12 +115,7 @@ export default function ClientListingDetailPage() {
             >
               Buy
             </button>
-            <button
-              onClick={() => navigate(`/client/orders/new?ticker=${encodeURIComponent(listing.ticker)}&direction=SELL`)}
-              className="border border-red-400 text-red-500 text-sm px-4 py-2 rounded-lg hover:bg-red-500 hover:text-white transition-all duration-150"
-            >
-              Sell
-            </button>
+
             <Link to="/client/securities" className="text-sm text-violet-600 dark:text-violet-400 hover:underline">
               ← Back
             </Link>
