@@ -97,6 +97,8 @@ export default function EmployeeDetailPage() {
       .catch(() => {})
   }, [emp?.id, emp?.permissions?.isAgent, emp?.permissions?.isSupervisor])
 
+  const [agentForm, setAgentForm] = useState({ limit: 0, usedLimit: 0, needApproval: false })
+
   if (!emp) {
     return (
       <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col items-center justify-center text-center px-6">
@@ -125,6 +127,11 @@ export default function EmployeeDetailPage() {
       permissions: { ...emp.permissions },
     })
     setSelectedRole(role)
+    setAgentForm(
+      actuaryInfo
+        ? { limit: actuaryInfo.limit ?? 0, usedLimit: actuaryInfo.usedLimit ?? 0, needApproval: actuaryInfo.needApproval ?? false }
+        : { limit: 0, usedLimit: 0, needApproval: false }
+    )
     setEditing(true)
   }
 
@@ -148,6 +155,11 @@ export default function EmployeeDetailPage() {
     const { name, value, type, checked } = e.target
     setForm((prev) => ({ ...prev, [name]: type === 'checkbox' ? checked : value }))
     if (fieldErrors[name]) setFieldErrors((prev) => ({ ...prev, [name]: '' }))
+  }
+
+  function handleAgentChange(e) {
+    const { name, value, type, checked } = e.target
+    setAgentForm((prev) => ({ ...prev, [name]: type === 'checkbox' ? checked : value }))
   }
 
   function handleBlur(e) {
@@ -186,6 +198,15 @@ export default function EmployeeDetailPage() {
     setFieldErrors({})
     try {
       await updateEmployee(emp.id, form)
+      if (selectedRole === 'agent') {
+        await actuaryService.setAgentLimit(emp.id, Number(agentForm.limit))
+        await actuaryService.setNeedApproval(emp.id, agentForm.needApproval)
+        if (Number(agentForm.usedLimit) === 0 && (actuaryInfo?.usedLimit ?? 0) !== 0) {
+          await actuaryService.resetAgentUsedLimit(emp.id)
+        }
+        const list = await actuaryService.getActuaries()
+        setActuaryInfo(list.find((a) => a.employeeId === emp.id) ?? null)
+      }
       setEditing(false)
     } catch {
       // keep editing open so user can retry
@@ -294,6 +315,35 @@ export default function EmployeeDetailPage() {
                   ))}
                 </div>
               </Section>
+
+              {selectedRole === 'agent' && (
+                <Section title="Agent Limits">
+                  <EditRow
+                    label="Limit (RSD)"
+                    name="limit"
+                    type="number"
+                    value={agentForm.limit}
+                    onChange={handleAgentChange}
+                  />
+                  <EditRow
+                    label="Used Limit (RSD)"
+                    name="usedLimit"
+                    type="number"
+                    value={agentForm.usedLimit}
+                    onChange={handleAgentChange}
+                  />
+                  <div className="flex items-center justify-between py-3 border-b border-slate-100 dark:border-slate-800 last:border-0">
+                    <span className="text-xs tracking-widest uppercase text-slate-500 dark:text-slate-400">Need Approval</span>
+                    <input
+                      type="checkbox"
+                      name="needApproval"
+                      checked={agentForm.needApproval}
+                      onChange={handleAgentChange}
+                      className="w-4 h-4 accent-violet-600"
+                    />
+                  </div>
+                </Section>
+              )}
 
               <div className="flex gap-3 pt-4">
                 <button

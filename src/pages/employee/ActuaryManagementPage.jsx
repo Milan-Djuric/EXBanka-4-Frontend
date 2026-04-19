@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import useWindowTitle from '../../hooks/useWindowTitle'
 import { actuaryService } from '../../services/actuaryService'
+import { ActuaryInfo } from '../../models/ActuaryInfo'
 import { fmt } from '../../utils/formatting'
 import PermissionGate from '../../components/PermissionGate'
 import { PERM } from '../../utils/permissions'
@@ -49,7 +50,7 @@ export default function ActuaryManagementPage() {
     try {
       await actuaryService.setAgentLimit(agentId, val)
       setActuaries((prev) =>
-        prev.map((a) => a.employeeId === agentId ? { ...a, limit: val } : a)
+        prev.map((a) => a.employeeId === agentId ? new ActuaryInfo({ ...a, limit: val }) : a)
       )
       setEditingLimit(null)
     } catch {
@@ -61,7 +62,7 @@ export default function ActuaryManagementPage() {
     try {
       await actuaryService.resetAgentUsedLimit(agentId)
       setActuaries((prev) =>
-        prev.map((a) => a.employeeId === agentId ? { ...a, usedLimit: 0 } : a)
+        prev.map((a) => a.employeeId === agentId ? new ActuaryInfo({ ...a, usedLimit: 0 }) : a)
       )
     } catch {
       // error dispatched by apiClient interceptor

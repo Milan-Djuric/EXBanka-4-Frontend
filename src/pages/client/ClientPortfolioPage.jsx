@@ -119,7 +119,7 @@ export default function ClientPortfolioPage() {
                         </td>
                         <td className="px-4 py-3">
                           <button
-                            onClick={() => navigate(`/client/securities/${h.listingId}`)}
+                            onClick={() => navigate(`/client/orders/new?ticker=${encodeURIComponent(h.ticker || h.listingId)}&direction=SELL`)}
                             className="border border-red-400 text-red-500 text-xs px-3 py-1 hover:bg-red-500 hover:text-white transition-all duration-150"
                           >
                             Sell
