@@ -252,10 +252,8 @@ describe('Upravljanje aktuarima — scenarios 1–9', () => {
     cy.contains('h1', 'Actuaries').should('be.visible')
 
     // And: admin vidi listu agenata i može menjati njihove limite
-    cy.get('tbody tr', { timeout: 10000 }).should('have.length.greaterThan', 0)
-    cy.get('tbody tr').first().within(() => {
-      cy.contains('Set limit').should('be.visible')
-    })
+    // Wait for actual data rows (not the loading placeholder row)
+    cy.contains('button', 'Set limit', { timeout: 10000 }).should('exist')
   })
 
   // ── Scenario 9 ────────────────────────────────────────────────────────────────

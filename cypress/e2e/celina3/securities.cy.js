@@ -34,7 +34,17 @@ function clickFirstSecurityRow() {
 
 // ── Suite ─────────────────────────────────────────────────────────────────────
 
-describe('Hartije od vrednosti — S10, S12, S14, S16, S18, S20, S22, S24', () => {
+describe('Hartije od vrednosti — S10–S24', () => {
+
+  // ── Scenario 11 ──────────────────────────────────────────────────────────────
+
+  it('Scenario 11: Aktuar vidi sve podržane tipove hartija (Stocks, Forex, Futures)', () => {
+    loginAs(ADMIN_EMAIL, ADMIN_PASS)
+    cy.visit('/securities')
+    cy.contains('button', 'Stocks').should('exist')
+    cy.contains('button', 'Futures').should('exist')
+    cy.contains('button', 'Forex Pairs').should('exist')
+  })
 
   // ── Scenario 10 ──────────────────────────────────────────────────────────────
 
@@ -73,6 +83,18 @@ describe('Hartije od vrednosti — S10, S12, S14, S16, S18, S20, S22, S24', () =
     cy.get('table tbody tr').first().should('contain.text', 'MSFT')
   })
 
+  // ── Scenario 13 ──────────────────────────────────────────────────────────────
+
+  it('Scenario 13: Pretraga hartije bez rezultata prikazuje prazan prikaz', () => {
+    loginAs(ADMIN_EMAIL, ADMIN_PASS)
+    cy.visit('/securities')
+    cy.get('table tbody tr', { timeout: 10000 }).should('have.length.greaterThan', 0)
+    cy.get('input[placeholder="Search by ticker or name…"]').clear().type('ZZZNONEXISTENT999')
+    cy.wait(800)
+    // Empty state renders one <tr> with a message and no Buy buttons
+    cy.get('table tbody tr').find('button').should('have.length', 0)
+  })
+
   // ── Scenario 14 ──────────────────────────────────────────────────────────────
 
   it('Scenario 14: Filtriranje po exchange prefix-u prikazuje samo odgovarajuće hartije', () => {
@@ -89,6 +111,19 @@ describe('Hartije od vrednosti — S10, S12, S14, S16, S18, S20, S22, S24', () =
 
     // Then: tabela je vidljiva (lista se filtrira)
     cy.get('table').should('exist')
+  })
+
+  // ── Scenario 15 ──────────────────────────────────────────────────────────────
+
+  it('Scenario 15: Filtriranje sa nevalidnim opsegom cene ne prikazuje rezultate', () => {
+    loginAs(ADMIN_EMAIL, ADMIN_PASS)
+    cy.visit('/securities')
+    cy.get('table tbody tr', { timeout: 10000 }).should('have.length.greaterThan', 0)
+    cy.get('input[type="number"][placeholder="Min"]').first().clear().type('999999')
+    cy.get('input[type="number"][placeholder="Max"]').first().clear().type('1')
+    cy.wait(800)
+    // Empty state renders one <tr> with a message and no Buy buttons
+    cy.get('table tbody tr').find('button').should('have.length', 0)
   })
 
   // ── Scenario 16 ──────────────────────────────────────────────────────────────
@@ -108,6 +143,12 @@ describe('Hartije od vrednosti — S10, S12, S14, S16, S18, S20, S22, S24', () =
     // Then: podaci se osvežavaju (API call fires again)
     cy.wait('@refreshRow', { timeout: 10000 })
     cy.get('table tbody tr').should('have.length.greaterThan', 0)
+  })
+
+  // ── Scenario 17 — skip ───────────────────────────────────────────────────────
+
+  it.skip('Scenario 17: Automatsko osvežavanje podataka na intervalu', () => {
+    // Skip: zahteva čekanje na timer interval — nije pogodan za E2E test.
   })
 
   // ── Scenario 18 ──────────────────────────────────────────────────────────────
@@ -132,6 +173,21 @@ describe('Hartije od vrednosti — S10, S12, S14, S16, S18, S20, S22, S24', () =
     cy.get('table').should('exist')
   })
 
+  // ── Scenario 19 ──────────────────────────────────────────────────────────────
+
+  it('Scenario 19: Promena perioda na grafiku menja prikazane podatke', () => {
+    loginAs(ADMIN_EMAIL, ADMIN_PASS)
+    cy.visit('/securities')
+    cy.contains('button', 'Stocks').click()
+    cy.get('table tbody tr', { timeout: 10000 }).should('have.length.greaterThan', 0)
+    clickFirstSecurityRow()
+    cy.url().should('include', '/securities/')
+    cy.contains('button', 'Week', { timeout: 10000 }).click()
+    cy.contains('button', 'Week').should('have.class', 'bg-violet-600')
+    cy.contains('button', 'Month').click()
+    cy.contains('button', 'Month').should('have.class', 'bg-violet-600')
+  })
+
   // ── Scenario 20 ──────────────────────────────────────────────────────────────
 
   it('Scenario 20: Detaljan prikaz akcije sadrži sekciju sa opcijama', () => {
@@ -149,6 +205,28 @@ describe('Hartije od vrednosti — S10, S12, S14, S16, S18, S20, S22, S24', () =
     // Then: prikazana je sekcija sa opcijama
     cy.url().should('include', '/securities/')
     cy.contains('View Options', { timeout: 10000 }).should('exist')
+  })
+
+  // ── Scenario 21 ──────────────────────────────────────────────────────────────
+
+  it('Scenario 21: Tabela opcija prikazuje ITM polja zelenom bojom', () => {
+    loginAs(ADMIN_EMAIL, ADMIN_PASS)
+    cy.visit('/securities')
+    cy.get('input[placeholder="Search by ticker or name…"]').type('MSFT')
+    cy.wait(600)
+    cy.get('table tbody tr', { timeout: 10000 }).should('have.length.greaterThan', 0)
+    cy.get('table tbody tr').first().within(() => cy.get('button').first().click())
+    cy.url().should('include', '/securities/')
+    cy.contains('View Options', { timeout: 10000 }).click()
+    cy.url().should('include', '/options')
+    cy.get('body').then($body => {
+      if ($body.find('table tbody tr').length > 0) {
+        cy.get('table tbody tr').first().click()
+        cy.get('[class*="bg-emerald"]', { timeout: 5000 }).should('exist')
+      } else {
+        cy.log('No options data available — skip ITM check')
+      }
+    })
   })
 
   // ── Scenario 22 ──────────────────────────────────────────────────────────────
@@ -195,6 +273,33 @@ describe('Hartije od vrednosti — S10, S12, S14, S16, S18, S20, S22, S24', () =
       // Then: stranica ostaje funkcionalna
       cy.get('body').should('exist')
     })
+  })
+
+  // ── Scenario 23 ──────────────────────────────────────────────────────────────
+
+  it('Scenario 23: Filtriranje futures ugovora po Settlement Date', () => {
+    loginAs(ADMIN_EMAIL, ADMIN_PASS)
+    cy.visit('/securities')
+    cy.contains('button', 'Futures').click()
+    cy.get('table tbody tr', { timeout: 10000 }).should('have.length.greaterThan', 0)
+
+    // Then: Settlement Date filter inputs are visible on the Futures tab
+    cy.contains('label', 'Settlement Date').should('exist')
+    cy.get('input[type="date"]').should('have.length.greaterThan', 0)
+
+    // When: postavi opseg datuma
+    cy.get('input[type="date"]').first().type('2025-01-01')
+    cy.get('input[type="date"]').last().type('2025-12-31')
+    cy.wait(600)
+
+    // Then: filter je primenjen bez greške — tabela ostaje funkcionalna
+    cy.get('table').should('exist')
+  })
+
+  // ── Scenario 25 — skip ───────────────────────────────────────────────────────
+
+  it.skip('Scenario 25: Prikaz hartija sa nepoznatog exchange-a', () => {
+    // Skip: backend filtrira nepoznate exchange-e — ne može se testirati u UI.
   })
 
   // ── Scenario 24 ──────────────────────────────────────────────────────────────

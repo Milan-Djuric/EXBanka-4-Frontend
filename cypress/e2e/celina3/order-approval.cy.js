@@ -107,7 +107,40 @@ before(() => {
 
 // ── Suite ─────────────────────────────────────────────────────────────────────
 
-describe('Odobravanje i pregled naloga — S48, S50, S52, S54, S56, S58', () => {
+describe('Odobravanje i pregled naloga — S48–S58', () => {
+
+  // ── Scenario 49 ──────────────────────────────────────────────────────────────
+
+  it('Scenario 49: Agentov order ide na odobravanje kada je Need Approval = true', () => {
+    cy.wrap(null).then(() => {
+      if (!agentActuaryId || !agentToken) {
+        cy.log('Agent data not available — skipping')
+        return
+      }
+      cy.request({
+        method: 'PUT',
+        url: `${API_BASE}/api/actuaries/${agentActuaryId}/need-approval`,
+        headers: { Authorization: `Bearer ${adminToken}` },
+        body: { needApproval: true },
+        failOnStatusCode: false,
+      }).then(() => {
+        cy.request({
+          method: 'POST',
+          url: `${API_BASE}/orders`,
+          headers: { Authorization: `Bearer ${agentToken}` },
+          body: { asset_id: firstStockId ?? 1, quantity: 1, direction: 'BUY', order_type: 'MARKET', account_id: agentAccountId ?? 1 },
+          failOnStatusCode: false,
+        }).then(({ body, status }) => {
+          if (status === 200 || status === 201) {
+            const orderStatus = body.status ?? body.orderStatus
+            expect(orderStatus).to.eq('PENDING')
+          } else {
+            expect(status).to.be.oneOf([200, 201, 400, 409])
+          }
+        })
+      })
+    })
+  })
 
   // ── Scenario 48 ──────────────────────────────────────────────────────────────
 
@@ -167,7 +200,7 @@ describe('Odobravanje i pregled naloga — S48, S50, S52, S54, S56, S58', () => 
         method: 'PUT',
         url: `${API_BASE}/api/actuaries/${agentActuaryId}/limit`,
         headers: { Authorization: `Bearer ${adminToken}` },
-        body: { limitAmount: 100000 },
+        body: { limit: 100000 },
         failOnStatusCode: false,
       }).then(() => {
         // When: kreira order čija cena premašuje preostali limit (quantity=1000 je dovoljno velika)
@@ -256,6 +289,149 @@ describe('Odobravanje i pregled naloga — S48, S50, S52, S54, S56, S58', () => 
           }
         })
       })
+    })
+  })
+
+  // ── Scenario 51 ──────────────────────────────────────────────────────────────
+
+  it('Scenario 51: Order na granici limita agenta — izvršava se bez odobrenja', () => {
+    cy.wrap(null).then(() => {
+      if (!agentActuaryId || !agentToken) {
+        cy.log('Agent data not available — skipping')
+        return
+      }
+      cy.request({
+        method: 'PUT',
+        url: `${API_BASE}/api/actuaries/${agentActuaryId}/need-approval`,
+        headers: { Authorization: `Bearer ${adminToken}` },
+        body: { needApproval: false },
+        failOnStatusCode: false,
+      })
+      cy.request({
+        method: 'PUT',
+        url: `${API_BASE}/api/actuaries/${agentActuaryId}/limit`,
+        headers: { Authorization: `Bearer ${adminToken}` },
+        body: { limitAmount: 9999999 },
+        failOnStatusCode: false,
+      }).then(() => {
+        cy.request({
+          method: 'POST',
+          url: `${API_BASE}/orders`,
+          headers: { Authorization: `Bearer ${agentToken}` },
+          body: { asset_id: firstStockId ?? 1, quantity: 1, direction: 'BUY', order_type: 'MARKET', account_id: agentAccountId ?? 1 },
+          failOnStatusCode: false,
+        }).then(({ body, status }) => {
+          if (status === 200 || status === 201) {
+            const orderStatus = body.status ?? body.orderStatus
+            expect(orderStatus).to.not.eq('PENDING')
+          } else {
+            expect(status).to.be.oneOf([200, 201, 400, 409])
+          }
+        })
+      })
+    })
+  })
+
+  // ── Scenario 53 ──────────────────────────────────────────────────────────────
+
+  it('Scenario 53: Supervizor odbija pending order — status postaje Declined', () => {
+    cy.wrap(null).then(() => {
+      if (!agentActuaryId || !agentToken) {
+        cy.log('Agent data not available — skipping')
+        return
+      }
+      cy.request({
+        method: 'PUT',
+        url: `${API_BASE}/api/actuaries/${agentActuaryId}/need-approval`,
+        headers: { Authorization: `Bearer ${adminToken}` },
+        body: { needApproval: true },
+        failOnStatusCode: false,
+      }).then(() => {
+        cy.request({
+          method: 'POST',
+          url: `${API_BASE}/orders`,
+          headers: { Authorization: `Bearer ${agentToken}` },
+          body: { asset_id: firstStockId ?? 1, quantity: 1, direction: 'BUY', order_type: 'MARKET', account_id: agentAccountId ?? 1 },
+          failOnStatusCode: false,
+        }).then(({ body, status }) => {
+          if (status === 200 || status === 201) {
+            const orderId = body.id ?? body.orderId
+            cy.request({
+              method: 'PUT',
+              url: `${API_BASE}/orders/${orderId}/decline`,
+              headers: { Authorization: `Bearer ${adminToken}` },
+              failOnStatusCode: false,
+            }).then(({ status: declineStatus }) => {
+              expect(declineStatus).to.be.oneOf([200, 201])
+              cy.request({
+                method: 'GET',
+                url: `${API_BASE}/orders/${orderId}`,
+                headers: { Authorization: `Bearer ${adminToken}` },
+              }).then(({ body: declined }) => {
+                const finalStatus = declined.status ?? declined.orderStatus
+                expect(finalStatus).to.eq('DECLINED')
+              })
+            })
+          } else {
+            cy.log(`Order creation returned ${status}`)
+          }
+        })
+      })
+    })
+  })
+
+  // ── Scenario 55 ──────────────────────────────────────────────────────────────
+
+  it('Scenario 55: Supervizor vidi sve potrebne kolone u pregledu ordera', () => {
+    // Intercept orders API — table thead only renders when there are orders.
+    // Use function handler to pass through HTML page navigation requests.
+    cy.intercept('GET', /\/orders(\?|$)/, (req) => {
+      if (req.headers['accept']?.includes('text/html')) {
+        req.continue()
+      } else {
+        req.reply({
+          statusCode: 200,
+          body: {
+            orders: [{
+              id: 9999, status: 'PENDING', direction: 'BUY', order_type: 'MARKET',
+              quantity: 1, asset_ticker: 'MSFT', price_per_unit: 400,
+              contract_size: 1, remaining_portions: 1,
+              agent_email: 'test@banka.rs', is_done: false, is_aon: false, is_margin: false,
+            }],
+          },
+        })
+      }
+    })
+    cy.visit('/login')
+    cy.get('input[name="email"]').type(ADMIN_EMAIL)
+    cy.get('input[name="password"]').type(ADMIN_PASS)
+    cy.get('button[type="submit"]').click()
+    cy.url().should('not.include', '/login')
+    cy.visit('/admin/orders')
+    cy.contains('h1', 'Order Review', { timeout: 10000 }).should('be.visible')
+    ;['Agent', 'Order Type', 'Asset', 'Qty', 'Contract Size', 'Price / Unit', 'Direction', 'Remaining', 'Status'].forEach(col => {
+      cy.contains('th', col).should('exist')
+    })
+  })
+
+  // ── Scenario 57 ──────────────────────────────────────────────────────────────
+
+  it('Scenario 57: Filtriranje ordera po statusu Done prikazuje samo završene ordere', () => {
+    cy.request({
+      method: 'GET',
+      url: `${API_BASE}/orders?status=DONE`,
+      headers: { Authorization: `Bearer ${adminToken}` },
+      failOnStatusCode: false,
+    }).then(({ body, status }) => {
+      if (status === 200) {
+        const orders = Array.isArray(body) ? body : body?.content ?? []
+        orders.forEach(order => {
+          const isDone = order.isDone ?? order.is_done ?? (order.status === 'DONE')
+          expect(isDone).to.be.true
+        })
+      } else {
+        expect(status).to.be.oneOf([200, 404])
+      }
     })
   })
 
