@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { useParams, Link } from 'react-router-dom'
+import { useParams, Link, useNavigate } from 'react-router-dom'
 import useWindowTitle from '../../hooks/useWindowTitle'
 import { securitiesService } from '../../services/securitiesService'
 import { fmt } from '../../utils/formatting'
@@ -13,7 +13,7 @@ function daysUntil(dateStr) {
   return Math.round((d - today) / 86_400_000)
 }
 
-function OptionCell({ option }) {
+function OptionCell({ option, navigate, direction }) {
   if (!option) {
     return (
       <>
@@ -22,6 +22,7 @@ function OptionCell({ option }) {
         <td className="px-3 py-2 text-slate-300 dark:text-slate-600 text-center">—</td>
         <td className="px-3 py-2 text-slate-300 dark:text-slate-600 text-center">—</td>
         <td className="px-3 py-2 text-slate-300 dark:text-slate-600 text-center">—</td>
+        <td className="px-2 py-2" />
       </>
     )
   }
@@ -41,12 +42,21 @@ function OptionCell({ option }) {
       </td>
       <td className="px-3 py-2 tabular-nums text-center">{fmt(option.volume)}</td>
       <td className="px-3 py-2 tabular-nums text-center">{option.openInterest.toLocaleString()}</td>
+      <td className="px-2 py-2 text-center">
+        <button
+          onClick={() => navigate(`/orders/new?ticker=${encodeURIComponent(option.ticker)}&direction=${direction}`)}
+          className="px-2 py-1 text-xs bg-violet-600 hover:bg-violet-700 text-white rounded transition-colors whitespace-nowrap"
+        >
+          Buy
+        </button>
+      </td>
     </>
   )
 }
 
 export default function StockOptionsPage() {
   const { id } = useParams()
+  const navigate = useNavigate()
   const [stock, setStock]     = useState(null)
   const [options, setOptions] = useState([])
   const [loading, setLoading] = useState(true)
@@ -288,7 +298,7 @@ export default function StockOptionsPage() {
                   <thead>
                     <tr className="border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50">
                       {/* Calls headers */}
-                      <th colSpan={5} className="px-3 py-3 text-center text-xs tracking-widest uppercase text-emerald-600 dark:text-emerald-400 font-medium border-r border-slate-200 dark:border-slate-700">
+                      <th colSpan={6} className="px-3 py-3 text-center text-xs tracking-widest uppercase text-emerald-600 dark:text-emerald-400 font-medium border-r border-slate-200 dark:border-slate-700">
                         Calls
                       </th>
                       {/* Strike */}
@@ -296,18 +306,18 @@ export default function StockOptionsPage() {
                         Strike
                       </th>
                       {/* Puts headers */}
-                      <th colSpan={5} className="px-3 py-3 text-center text-xs tracking-widest uppercase text-red-500 dark:text-red-400 font-medium">
+                      <th colSpan={6} className="px-3 py-3 text-center text-xs tracking-widest uppercase text-red-500 dark:text-red-400 font-medium">
                         Puts
                       </th>
                     </tr>
                     <tr className="border-b border-slate-200 dark:border-slate-700">
-                      {['Last', 'Change', '%Change', 'Vol', 'OI'].map(h => (
+                      {['Last', 'Change', '%Change', 'Vol', 'OI', ''].map(h => (
                         <th key={`c-${h}`} className="px-3 py-2 text-center text-xs text-slate-500 dark:text-slate-400 font-medium">{h}</th>
                       ))}
                       <th className="px-4 py-2 text-center text-xs font-semibold text-slate-700 dark:text-slate-300 border-x border-slate-200 dark:border-slate-700">
                         $ Price
                       </th>
-                      {['Last', 'Change', '%Change', 'Vol', 'OI'].map(h => (
+                      {['Last', 'Change', '%Change', 'Vol', 'OI', ''].map(h => (
                         <th key={`p-${h}`} className="px-3 py-2 text-center text-xs text-slate-500 dark:text-slate-400 font-medium">{h}</th>
                       ))}
                     </tr>
@@ -334,11 +344,11 @@ export default function StockOptionsPage() {
                             }`}
                           >
                             {/* Call cells */}
-                            <td colSpan={5} className={`border-r border-slate-200 dark:border-slate-700 ${
+                            <td colSpan={6} className={`border-r border-slate-200 dark:border-slate-700 ${
                               isCallITM ? 'bg-emerald-50/60 dark:bg-emerald-900/10' : ''
                             }`}>
                               <table className="w-full"><tbody><tr>
-                                <OptionCell option={call} />
+                                <OptionCell option={call} navigate={navigate} direction="BUY" />
                               </tr></tbody></table>
                             </td>
 
@@ -352,11 +362,11 @@ export default function StockOptionsPage() {
                             </td>
 
                             {/* Put cells */}
-                            <td colSpan={5} className={
+                            <td colSpan={6} className={
                               isPutITM ? 'bg-emerald-50/60 dark:bg-emerald-900/10' : ''
                             }>
                               <table className="w-full"><tbody><tr>
-                                <OptionCell option={put} />
+                                <OptionCell option={put} navigate={navigate} direction="BUY" />
                               </tr></tbody></table>
                             </td>
                           </tr>
