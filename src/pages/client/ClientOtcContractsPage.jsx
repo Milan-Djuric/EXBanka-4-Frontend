@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react'
 import useWindowTitle from '../../hooks/useWindowTitle'
-import { otcService } from '../../services/otcService'
+import { clientOtcService } from '../../services/clientOtcService'
 import { fmt } from '../../utils/formatting'
+import ClientPortalLayout from '../../layouts/ClientPortalLayout'
 
 const TABS = [
   { label: 'Valid',   key: 'ACTIVE' },
@@ -82,7 +83,7 @@ function ExerciseModal({ contract, onClose, onConfirm }) {
   )
 }
 
-export default function OtcContractsPage() {
+export default function ClientOtcContractsPage() {
   useWindowTitle('OTC Contracts | AnkaBanka')
 
   const [contracts,    setContracts]    = useState([])
@@ -96,12 +97,12 @@ export default function OtcContractsPage() {
     setError(null)
     try {
       if (tab.key === 'ACTIVE') {
-        const data = await otcService.getContracts('ACTIVE')
+        const data = await clientOtcService.getContracts('ACTIVE')
         setContracts(Array.isArray(data) ? data : (data.contracts ?? data.items ?? []))
       } else {
         const [expired, exercised] = await Promise.all([
-          otcService.getContracts('EXPIRED').then(d => Array.isArray(d) ? d : (d.contracts ?? d.items ?? [])),
-          otcService.getContracts('EXERCISED').then(d => Array.isArray(d) ? d : (d.contracts ?? d.items ?? [])),
+          clientOtcService.getContracts('EXPIRED').then(d => Array.isArray(d) ? d : (d.contracts ?? d.items ?? [])),
+          clientOtcService.getContracts('EXERCISED').then(d => Array.isArray(d) ? d : (d.contracts ?? d.items ?? [])),
         ])
         setContracts([...expired, ...exercised])
       }
@@ -115,7 +116,7 @@ export default function OtcContractsPage() {
   useEffect(() => { loadContracts(activeTab) }, [activeTab])
 
   async function handleExercise(id) {
-    await otcService.exerciseContract(id, undefined)
+    await clientOtcService.exerciseContract(id, undefined)
     await loadContracts(activeTab)
   }
 
@@ -124,14 +125,12 @@ export default function OtcContractsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 px-6 py-16">
-      <div className="max-w-7xl mx-auto">
-
-        <p className="text-xs tracking-widest uppercase text-violet-600 dark:text-violet-400 mb-4">Employee Portal</p>
+    <ClientPortalLayout>
+      <div className="p-6">
+        <p className="text-xs tracking-widest uppercase text-violet-600 dark:text-violet-400 mb-4">Client Portal</p>
         <h1 className="font-serif text-4xl font-light text-slate-900 dark:text-white mb-3">OTC Contracts</h1>
         <div className="w-10 h-px bg-violet-500 dark:bg-violet-400 mb-8" />
 
-        {/* Tabs */}
         <div className="flex gap-1 mb-5 border-b border-slate-200 dark:border-slate-700">
           {TABS.map(tab => (
             <button
@@ -227,7 +226,6 @@ export default function OtcContractsPage() {
             </div>
           )}
         </div>
-
       </div>
 
       {exerciseItem && (
@@ -237,6 +235,6 @@ export default function OtcContractsPage() {
           onConfirm={handleExercise}
         />
       )}
-    </div>
+    </ClientPortalLayout>
   )
 }
