@@ -84,9 +84,21 @@ export const NAV_ITEMS = [
     show: (p) => p?.isSupervisor || p?.isAdmin,
   },
   {
-    label: 'OTC Trading',
+    label: 'OTC Market',
+    href: '/otc/market',
+    icon: 'M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3',
+    show: (p) => p?.isAgent || p?.isSupervisor || p?.isAdmin,
+  },
+  {
+    label: 'OTC Negotiations',
     href: '/otc/negotiations',
     icon: 'M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4',
+    show: (p) => p?.isAgent || p?.isSupervisor || p?.isAdmin,
+  },
+  {
+    label: 'OTC Contracts',
+    href: '/otc/contracts',
+    icon: 'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z',
     show: (p) => p?.isAgent || p?.isSupervisor || p?.isAdmin,
   },
   {

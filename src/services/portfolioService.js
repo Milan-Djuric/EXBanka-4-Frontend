@@ -15,4 +15,9 @@ export const portfolioService = {
     const { data } = await apiClient.get('/tax/my')
     return data
   },
+
+  async setPublicMode(ticker, isPublic) {
+    const { data } = await apiClient.put(`/client/portfolio/${ticker}/public-mode`, { isPublic })
+    return data
+  },
 }

@@ -27,6 +27,21 @@ export default function PortfolioPage() {
   const [activeTab, setActiveTab] = useState(TABS[0])
   const [profit, setProfit]       = useState(null)
   const [tax, setTax]             = useState(null)
+  const [toggling, setToggling]   = useState(new Set())
+
+  async function handleTogglePublic(ticker, currentIsPublic) {
+    if (toggling.has(ticker)) return
+    const next = !currentIsPublic
+    setToggling(prev => new Set([...prev, ticker]))
+    setHoldings(prev => prev.map(h => (h.ticker === ticker ? { ...h, is_public: next } : h)))
+    try {
+      await portfolioService.setPublicMode(ticker, next)
+    } catch {
+      setHoldings(prev => prev.map(h => (h.ticker === ticker ? { ...h, is_public: currentIsPublic } : h)))
+    } finally {
+      setToggling(prev => { const s = new Set(prev); s.delete(ticker); return s })
+    }
+  }
 
   useEffect(() => {
     setLoading(true)
@@ -155,8 +170,20 @@ export default function PortfolioPage() {
                         {(h.profit ?? 0) >= 0 ? '+' : ''}{fmt(h.profit ?? 0)}
                       </td>
                       <td className="px-4 py-3 text-slate-500 dark:text-slate-400 text-xs whitespace-nowrap">{h.last_modified}</td>
-                      <td className="px-4 py-3 text-slate-500 dark:text-slate-400 tabular-nums">
-                        {h.asset_type === 'STOCK' ? (h.public_amount ?? 0) : '—'}
+                      <td className="px-4 py-3">
+                        {h.asset_type === 'STOCK' ? (
+                          <button
+                            onClick={() => handleTogglePublic(h.ticker, h.is_public)}
+                            disabled={toggling.has(h.ticker)}
+                            className={`text-xs px-2 py-1 rounded border transition-colors ${
+                              h.is_public
+                                ? 'bg-emerald-50 border-emerald-300 text-emerald-700 dark:bg-emerald-900/30 dark:border-emerald-700 dark:text-emerald-400'
+                                : 'bg-slate-50 border-slate-300 text-slate-500 dark:bg-slate-800 dark:border-slate-600 dark:text-slate-400'
+                            } disabled:opacity-50 disabled:cursor-not-allowed`}
+                          >
+                            {h.is_public ? 'Visible on OTC market' : 'Private'}
+                          </button>
+                        ) : '—'}
                       </td>
                       <td className="px-4 py-3">
                         <button

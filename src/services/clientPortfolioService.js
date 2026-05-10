@@ -10,4 +10,9 @@ export const clientPortfolioService = {
     const { data } = await clientApiClient.get('/client/portfolio/profit')
     return data
   },
+
+  async setPublicMode(ticker, isPublic) {
+    const { data } = await clientApiClient.put(`/client/portfolio/${ticker}/public-mode`, { isPublic })
+    return data
+  },
 }

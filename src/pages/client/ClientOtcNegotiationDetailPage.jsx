@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import useWindowTitle from '../../hooks/useWindowTitle'
-import { useAuth } from '../../context/AuthContext'
-import { otcService } from '../../services/otcService'
-import { securitiesService } from '../../services/securitiesService'
+import { useClientAuth } from '../../context/ClientAuthContext'
+import { clientOtcService } from '../../services/clientOtcService'
+import { clientSecuritiesService } from '../../services/clientSecuritiesService'
 import { fmt } from '../../utils/formatting'
+import ClientPortalLayout from '../../layouts/ClientPortalLayout'
 
 function getPriceColor(price, market) {
   if (!market) return 'text-slate-700 dark:text-slate-300'
@@ -23,11 +24,11 @@ function Field({ label, children }) {
   )
 }
 
-export default function OtcNegotiationDetailPage() {
+export default function ClientOtcNegotiationDetailPage() {
   useWindowTitle('Negotiation Detail | AnkaBanka')
   const { id }   = useParams()
   const navigate = useNavigate()
-  const { user } = useAuth()
+  const { clientUser } = useClientAuth()
 
   const [neg,         setNeg]         = useState(null)
   const [marketPrice, setMarketPrice] = useState(null)
@@ -36,21 +37,21 @@ export default function OtcNegotiationDetailPage() {
   const [acting,      setActing]      = useState(false)
   const [actionError, setActionError] = useState(null)
 
-  const [counterQty,    setCounterQty]    = useState('')
-  const [counterPrice,  setCounterPrice]  = useState('')
-  const [counterDate,   setCounterDate]   = useState('')
-  const [counterPremium,setCounterPremium]= useState('')
-  const [showCounter,   setShowCounter]   = useState(false)
+  const [counterQty,     setCounterQty]     = useState('')
+  const [counterPrice,   setCounterPrice]   = useState('')
+  const [counterDate,    setCounterDate]    = useState('')
+  const [counterPremium, setCounterPremium] = useState('')
+  const [showCounter,    setShowCounter]    = useState(false)
   const [showAcceptConfirm, setShowAcceptConfirm] = useState(false)
 
   useEffect(() => {
     setLoading(true)
     setError(null)
-    otcService.getNegotiation(id)
+    clientOtcService.getNegotiation(id)
       .then(data => {
         setNeg(data)
         if (data?.ticker) {
-          securitiesService.getListings({ ticker: data.ticker })
+          clientSecuritiesService.getListings({ ticker: data.ticker })
             .then(r => {
               const items = r?.items ?? r ?? []
               const first = Array.isArray(items) ? items[0] : null
@@ -63,7 +64,7 @@ export default function OtcNegotiationDetailPage() {
       .finally(() => setLoading(false))
   }, [id])
 
-  const userId = user?.id
+  const userId = clientUser?.id
   const isMyTurn = neg &&
     ((neg.status === 'PENDING_SELLER' && neg.sellerId === userId) ||
      (neg.status === 'PENDING_BUYER'  && neg.buyerId  === userId))
@@ -72,8 +73,8 @@ export default function OtcNegotiationDetailPage() {
     setActing(true)
     setActionError(null)
     try {
-      await otcService.acceptNegotiation(id)
-      navigate('/otc/negotiations')
+      await clientOtcService.acceptNegotiation(id)
+      navigate('/client/otc/negotiations')
     } catch {
       setActionError('Failed to accept negotiation.')
     } finally {
@@ -86,8 +87,8 @@ export default function OtcNegotiationDetailPage() {
     setActing(true)
     setActionError(null)
     try {
-      await otcService.rejectNegotiation(id)
-      navigate('/otc/negotiations')
+      await clientOtcService.rejectNegotiation(id)
+      navigate('/client/otc/negotiations')
     } catch {
       setActionError('Failed to reject negotiation.')
     } finally {
@@ -104,13 +105,13 @@ export default function OtcNegotiationDetailPage() {
     setActing(true)
     setActionError(null)
     try {
-      await otcService.counterOffer(id, {
-        amount:        Number(counterQty),
-        pricePerStock: Number(counterPrice),
+      await clientOtcService.counterOffer(id, {
+        amount:         Number(counterQty),
+        pricePerStock:  Number(counterPrice),
         settlementDate: counterDate,
-        premium:       counterPremium ? Number(counterPremium) : 0,
+        premium:        counterPremium ? Number(counterPremium) : 0,
       })
-      navigate('/otc/negotiations')
+      navigate('/client/otc/negotiations')
     } catch {
       setActionError('Failed to submit counter-offer.')
     } finally {
@@ -121,17 +122,16 @@ export default function OtcNegotiationDetailPage() {
   const priceColor = neg ? getPriceColor(neg.pricePerStock, marketPrice) : ''
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 px-6 py-16">
-      <div className="max-w-3xl mx-auto">
-
+    <ClientPortalLayout>
+      <div className="p-6 max-w-3xl">
         <button
-          onClick={() => navigate('/otc/negotiations')}
+          onClick={() => navigate('/client/otc/negotiations')}
           className="text-xs text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white mb-6 flex items-center gap-1 transition-colors"
         >
           ← Back to Negotiations
         </button>
 
-        <p className="text-xs tracking-widest uppercase text-violet-600 dark:text-violet-400 mb-4">Employee Portal</p>
+        <p className="text-xs tracking-widest uppercase text-violet-600 dark:text-violet-400 mb-4">Client Portal</p>
         <h1 className="font-serif text-4xl font-light text-slate-900 dark:text-white mb-3">Negotiation Detail</h1>
         <div className="w-10 h-px bg-violet-500 dark:bg-violet-400 mb-8" />
 
@@ -141,7 +141,6 @@ export default function OtcNegotiationDetailPage() {
           <p className="text-red-500 text-sm">Failed to load negotiation.</p>
         ) : (
           <>
-            {/* Details card */}
             <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl shadow-sm p-6 mb-6">
               <div className="grid grid-cols-2 gap-x-8 gap-y-5">
                 <Field label="Ticker">
@@ -190,14 +189,12 @@ export default function OtcNegotiationDetailPage() {
               </div>
             </div>
 
-            {/* Actions — only shown when it's the user's turn */}
             {isMyTurn && (
               <div className="space-y-4">
                 {actionError && (
                   <p className="text-red-500 text-xs">{actionError}</p>
                 )}
 
-                {/* Accept / Reject */}
                 {!showCounter && (
                   <div className="flex gap-3">
                     <button
@@ -224,7 +221,6 @@ export default function OtcNegotiationDetailPage() {
                   </div>
                 )}
 
-                {/* Accept confirmation */}
                 {showAcceptConfirm && (
                   <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-5 shadow-sm">
                     <p className="text-sm text-slate-700 dark:text-slate-300 mb-1">
@@ -249,7 +245,6 @@ export default function OtcNegotiationDetailPage() {
                   </div>
                 )}
 
-                {/* Counter-offer form */}
                 {showCounter && (
                   <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-5 shadow-sm">
                     <h3 className="text-sm font-medium text-slate-900 dark:text-white mb-4">Counter-offer</h3>
@@ -325,6 +320,6 @@ export default function OtcNegotiationDetailPage() {
           </>
         )}
       </div>
-    </div>
+    </ClientPortalLayout>
   )
 }

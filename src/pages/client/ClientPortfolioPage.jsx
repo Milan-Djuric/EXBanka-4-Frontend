@@ -29,6 +29,21 @@ export default function ClientPortfolioPage() {
   const [activeTab,    setActiveTab]    = useState(TABS[0])
   const [pendingSells, setPendingSells] = useState(new Set())
   const [profit,       setProfit]       = useState(null)
+  const [toggling,     setToggling]     = useState(new Set())
+
+  async function handleTogglePublic(ticker, currentIsPublic) {
+    if (toggling.has(ticker)) return
+    const next = !currentIsPublic
+    setToggling(prev => new Set([...prev, ticker]))
+    setHoldings(prev => prev.map(h => (h.ticker === ticker ? { ...h, is_public: next } : h)))
+    try {
+      await clientPortfolioService.setPublicMode(ticker, next)
+    } catch {
+      setHoldings(prev => prev.map(h => (h.ticker === ticker ? { ...h, is_public: currentIsPublic } : h)))
+    } finally {
+      setToggling(prev => { const s = new Set(prev); s.delete(ticker); return s })
+    }
+  }
 
   useEffect(() => {
     if (location.state?.pendingSell) {
@@ -140,7 +155,7 @@ export default function ClientPortfolioPage() {
                           i % 2 === 0 ? '' : 'bg-slate-50/50 dark:bg-slate-800/20'
                         }`}
                       >
-                        <td className="px-4 py-3"><TypeBadge type={h.assetType} /></td>
+                        <td className="px-4 py-3"><TypeBadge type={h.asset_type} /></td>
                         <td className="px-4 py-3 font-mono font-medium text-slate-900 dark:text-white">{h.ticker || h.listingId}</td>
                         <td className="px-4 py-3 text-slate-700 dark:text-slate-300 tabular-nums">{h.amount}</td>
                         <td className="px-4 py-3 text-slate-700 dark:text-slate-300 tabular-nums">{fmt(h.price ?? 0)}</td>
@@ -151,9 +166,21 @@ export default function ClientPortfolioPage() {
                         }`}>
                           {(h.profit ?? 0) >= 0 ? '+' : ''}{fmt(h.profit ?? 0)}
                         </td>
-                        <td className="px-4 py-3 text-slate-500 dark:text-slate-400 text-xs whitespace-nowrap">{h.lastModified}</td>
-                        <td className="px-4 py-3 text-slate-500 dark:text-slate-400 tabular-nums">
-                          {h.assetType === 'STOCK' ? h.publicAmount : '—'}
+                        <td className="px-4 py-3 text-slate-500 dark:text-slate-400 text-xs whitespace-nowrap">{h.last_modified}</td>
+                        <td className="px-4 py-3">
+                          {h.asset_type === 'STOCK' ? (
+                            <button
+                              onClick={() => handleTogglePublic(h.ticker, h.is_public)}
+                              disabled={toggling.has(h.ticker)}
+                              className={`text-xs px-2 py-1 rounded border transition-colors ${
+                                h.is_public
+                                  ? 'bg-emerald-50 border-emerald-300 text-emerald-700 dark:bg-emerald-900/30 dark:border-emerald-700 dark:text-emerald-400'
+                                  : 'bg-slate-50 border-slate-300 text-slate-500 dark:bg-slate-800 dark:border-slate-600 dark:text-slate-400'
+                              } disabled:opacity-50 disabled:cursor-not-allowed`}
+                            >
+                              {h.is_public ? 'Visible on OTC market' : 'Private'}
+                            </button>
+                          ) : '—'}
                         </td>
                         <td className="px-4 py-3">
                           {pendingSells.has(h.ticker || String(h.listingId)) ? (

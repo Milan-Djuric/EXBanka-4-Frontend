@@ -73,7 +73,11 @@ function Navbar() {
               <NavLink to="/portfolio" className={linkClass}>Portfolio</NavLink>
             )}
             {(user?.permissions?.isAgent || user?.permissions?.isSupervisor || user?.permissions?.isAdmin) && (
-              <NavLink to="/otc/negotiations" className={linkClass}>OTC Trading</NavLink>
+              <>
+                <NavLink to="/otc/market" className={linkClass}>OTC Market</NavLink>
+                <NavLink to="/otc/negotiations" className={linkClass}>OTC Negotiations</NavLink>
+                <NavLink to="/otc/contracts" className={linkClass}>OTC Contracts</NavLink>
+              </>
             )}
             {user && (
               <NavLink to="/investment/funds" className={linkClass}>Investment Funds</NavLink>
@@ -168,7 +172,11 @@ function Navbar() {
               <NavLink to="/portfolio" className={linkClass} onClick={() => setMenuOpen(false)}>Portfolio</NavLink>
             )}
             {(user?.permissions?.isAgent || user?.permissions?.isSupervisor || user?.permissions?.isAdmin) && (
-              <NavLink to="/otc/negotiations" className={linkClass} onClick={() => setMenuOpen(false)}>OTC Trading</NavLink>
+              <>
+                <NavLink to="/otc/market" className={linkClass} onClick={() => setMenuOpen(false)}>OTC Market</NavLink>
+                <NavLink to="/otc/negotiations" className={linkClass} onClick={() => setMenuOpen(false)}>OTC Negotiations</NavLink>
+                <NavLink to="/otc/contracts" className={linkClass} onClick={() => setMenuOpen(false)}>OTC Contracts</NavLink>
+              </>
             )}
             {user && (
               <NavLink to="/investment/funds" className={linkClass} onClick={() => setMenuOpen(false)}>Investment Funds</NavLink>

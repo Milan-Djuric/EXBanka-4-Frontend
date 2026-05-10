@@ -30,4 +30,19 @@ export const otcService = {
     const { data } = await apiClient.put(`/otc/negotiations/${id}/reject`)
     return data
   },
+
+  async getMarket() {
+    const { data } = await apiClient.get('/otc/market')
+    return data
+  },
+
+  async getContracts(status) {
+    const { data } = await apiClient.get('/otc/contracts', { params: status ? { status } : undefined })
+    return data
+  },
+
+  async exerciseContract(id, buyerAccountId) {
+    const { data } = await apiClient.post(`/otc/contracts/${id}/exercise`, { buyerAccountId })
+    return data
+  },
 }
