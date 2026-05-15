@@ -3,9 +3,9 @@
  * Scenarios: 1–4
  */
 
-const EMPLOYEE_EMAIL    = 'marko@banka.rs'
-const EMPLOYEE_PASSWORD = 'marko123'
-const EXISTING_EMAIL    = 'luka@banka.rs'
+const EMPLOYEE_EMAIL    = 'elezovic@banka.rs'
+const EMPLOYEE_PASSWORD = 'denis123'
+const EXISTING_EMAIL    = 'vasa@banka.rs'
 
 // ── Suite ─────────────────────────────────────────────────────────────────────
 

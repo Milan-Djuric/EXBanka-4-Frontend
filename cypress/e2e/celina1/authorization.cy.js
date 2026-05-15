@@ -36,8 +36,8 @@ describe('Autorizacija i permisije — scenarios 16–18', () => {
   it('Scenario 16: korisnik bez admin permisija pokušava pristup admin portalu', () => {
     // Log in as non-admin employee (Marko has READ/WRITE, no ADMIN)
     cy.visit('/login')
-    cy.get('input[name="email"]').type('marko@banka.rs')
-    cy.get('input[name="password"]').type('marko123')
+    cy.get('input[name="email"]').type('elezovic@banka.rs')
+    cy.get('input[name="password"]').type('denis123')
     cy.get('button[type="submit"]').click()
     cy.url().should('not.include', '/login')
 
